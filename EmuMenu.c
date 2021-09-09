@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "EmuMenu.h"
+#include "EmuSettings.h"
 #include "../Emubase.h"
 #include "../GUI.h"
 #include "../Main.h"
@@ -24,8 +25,10 @@ static void exitUI(void);
 u8 autoA = 0;			// 0=off, 1=on, 2=R
 u8 autoB = 0;
 u8 g_debugSet = 0;		// Should we output debug text?
-u8 settingsChanged = 0;
+bool settingsChanged = false;
+bool pauseEmulation = false;
 
+int sleepTime = 60*60*5;			// 5 min
 int selected = 0;
 static int selectedMenu = 0;
 static int selectedMain = 0;
@@ -109,11 +112,11 @@ void openMenu() {
 	setSelectedMenu(lastMainMenu);
 	setupMenuPalette();
 	setDarknessGs(8);
-	if (emuSettings & 1) {				// Should we pause when menu is open?
+	if (emuSettings & AUTOPAUSE_EMULATION) {	// Should we pause when menu is open?
 		pauseEmulation = true;
 		setMuteSoundGUI();
 	}
-	if ((emuSettings>>10) & 1) {
+	if (emuSettings & AUTOSAVE_NVRAM) {
 		saveNVRAM();
 	}
 }
@@ -130,9 +133,9 @@ void exitUI() {
 	exitGUI();
 	pauseEmulation = false;
 	setMuteSoundGUI();
-	if (settingsChanged && (emuSettings & 0x200)) {
+	if (settingsChanged && (emuSettings & AUTOSAVE_SETTINGS)) {
 		saveSettings();
-		settingsChanged = 0;
+		settingsChanged = false;
 	}
 	setDarknessGs(0);
 	paletteTxAll();
@@ -471,25 +474,30 @@ void gbaSleep() {
 //---------------------------------------------
 
 void autoPauseGameSet() {
-	emuSettings ^= 0x01;
-	settingsChanged = 1;
-	pauseEmulation = (emuSettings & 1);
+	emuSettings ^= AUTOPAUSE_EMULATION;
+	settingsChanged = true;
+	pauseEmulation = (emuSettings & AUTOPAUSE_EMULATION);
 	setMuteSoundGUI();
 }
 
 void autoStateSet() {
-	emuSettings ^= 0x04;
-	settingsChanged = 1;
+	emuSettings ^= AUTOLOAD_STATE;
+	settingsChanged = true;
 }
 
 void autoSettingsSet() {
-	emuSettings ^= 0x200;
-	settingsChanged = 1;
+	emuSettings ^= AUTOSAVE_SETTINGS;
+	settingsChanged = true;
 }
 
 void autoNVRAMSet() {
-	emuSettings ^= 0x400;
-	settingsChanged = 1;
+	emuSettings ^= AUTOLOAD_NVRAM;
+	settingsChanged = true;
+}
+
+void saveNVRAMSet() {
+	emuSettings ^= AUTOSAVE_NVRAM;
+	settingsChanged = true;
 }
 
 void debugTextSet() {
@@ -497,31 +505,21 @@ void debugTextSet() {
 }
 
 void sleepSet() {
-	int i = (emuSettings+0x10) & 0x30;
-	emuSettings = (emuSettings & ~0x30) | i;
-	if (i == 0x00) {
+	int i = (emuSettings+0x80) & AUTOSLEEP_MASK;
+	emuSettings = (emuSettings & ~AUTOSLEEP_MASK) | i;
+	if (i == AUTOSLEEP_5MIN) {
 		sleepTime = 60*60*5;		// 5 min
 	}
-	else if (i == 0x10) {
+	else if (i == AUTOSLEEP_10MIN) {
 		sleepTime = 60*60*10;		// 10 min
 	}
-	else if (i == 0x20) {
+	else if (i == AUTOSLEEP_30MIN) {
 		sleepTime = 60*60*30;		// 30 min
 	}
-	else if (i == 0x30) {
+	else if (i == AUTOSLEEP_OFF) {
 		sleepTime = 0x7F000000;		// 360 days...
 	}
-	settingsChanged = 1;
-}
-
-void powerSaveSet() {
-	emuSettings ^= 0x02;
-	settingsChanged = 1;
-}
-
-void screenSwapSet() {
-	emuSettings ^= 0x100;
-	settingsChanged = 1;
+	settingsChanged = true;
 }
 
 void autoASet() {
@@ -553,9 +551,9 @@ void autoBSet() {
 }
 
 void speedSet() {
-	int i = (emuSettings+0x40) & 0xC0;
-	emuSettings = (emuSettings & ~0xC0) | i;
-	setEmuSpeed(i>>6);
+	int i = (emuSettings+0x20) & EMUSPEED_MASK;
+	emuSettings = (emuSettings & ~EMUSPEED_MASK) | i;
+	setEmuSpeed(i>>5);
 }
 
 void flickSet() {

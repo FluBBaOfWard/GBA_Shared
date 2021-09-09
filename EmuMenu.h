@@ -13,8 +13,10 @@ extern u8 autoA;
 extern u8 autoB;
 extern u8 g_debugSet;
 
-extern u8 settingsChanged;
+extern bool settingsChanged;
+extern bool pauseEmulation;
 
+extern int sleepTime;
 /// This is the current row in the menu.
 extern int selected;
 
@@ -74,6 +76,7 @@ void autoPauseGameSet();
 void autoStateSet();
 void autoSettingsSet();
 void autoNVRAMSet();
+void saveNVRAMSet();
 void debugTextSet();
 void sleepSet();
 void powerSaveSet();

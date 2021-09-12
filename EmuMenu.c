@@ -4,15 +4,13 @@
 
 #include "EmuMenu.h"
 #include "EmuSettings.h"
-#include "../Emubase.h"
-#include "../GUI.h"
+#include "AsmExtra.h"
 #include "../Main.h"
+#include "../GUI.h"
 #include "../FileHandling.h"
-#include "../Cart.h"
 #include "../Gfx.h"
 #include "../io.h"
 #include "../Sound.h"
-#include "AsmExtra.h"
 
 extern const fptr fnMain[];
 extern const fptr *const fnListX[];
@@ -27,9 +25,12 @@ u8 autoB = 0;
 u8 g_debugSet = 0;		// Should we output debug text?
 bool settingsChanged = false;
 bool pauseEmulation = false;
+bool enableExit = false;
 
+int emuSettings = 0;
 int sleepTime = 60*60*5;			// 5 min
 int selected = 0;
+
 static int selectedMenu = 0;
 static int selectedMain = 0;
 static int lastMainMenu = 1;
@@ -505,7 +506,7 @@ void debugTextSet() {
 }
 
 void sleepSet() {
-	int i = (emuSettings+0x80) & AUTOSLEEP_MASK;
+	int i = (emuSettings+0x100) & AUTOSLEEP_MASK;
 	emuSettings = (emuSettings & ~AUTOSLEEP_MASK) | i;
 	if (i == AUTOSLEEP_5MIN) {
 		sleepTime = 60*60*5;		// 5 min
@@ -551,7 +552,7 @@ void autoBSet() {
 }
 
 void speedSet() {
-	int i = (emuSettings+0x20) & EMUSPEED_MASK;
+	int i = (emuSettings+0x40) & EMUSPEED_MASK;
 	emuSettings = (emuSettings & ~EMUSPEED_MASK) | i;
 	setEmuSpeed(i>>5);
 }

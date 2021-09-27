@@ -354,23 +354,27 @@ void int2str(int val, char *dst) {
 	*(dst++) = 0;
 }
 
-void hex2str(char *dest, int hexValue) {
+void int2HexStr(char *dest, int val) {
 	int i;
-	int v = bin2BCD(hexValue);
 	for (i = 0; i < 8; i++) {
-		dest[7-i] = (v & 0xF) + 0x30;
-		v = v>>4;
+		dest[7-i] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
+		val = val>>4;
 	}
 	dest[8] = 0;
 }
 
-void hex2strByte(char *dest, int hexValue) {
+void short2HexStr(char *dest, short val) {
 	int i;
-	int v = bin2BCD(hexValue);
-	for (i = 0; i < 2; i++) {
-		dest[1-i] = (v & 0xF) + 0x30;
-		v = v>>4;
+	for (i = 0; i < 4; i++) {
+		dest[3-i] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
+		val = val>>4;
 	}
+	dest[5] = 0;
+}
+
+void char2HexStr(char *dest, char val) {
+	dest[0] = ((val>>4) & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
+	dest[1] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
 	dest[2] = 0;
 }
 

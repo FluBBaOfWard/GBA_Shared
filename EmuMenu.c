@@ -342,7 +342,7 @@ void strlMerge(char *dst, const char *src1, const char *src2, int dstSize) {
 	strlcat(dst, src2, dstSize);
 }
 
-void int2str(int val, char *dst) {
+void int2Str(int val, char *dst) {
 	u32 j;
 	int mod,k;
 
@@ -357,7 +357,7 @@ void int2str(int val, char *dst) {
 void int2HexStr(char *dest, int val) {
 	int i;
 	for (i = 0; i < 8; i++) {
-		dest[7-i] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
+		dest[7-i] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : '7');
 		val = val>>4;
 	}
 	dest[8] = 0;
@@ -366,15 +366,15 @@ void int2HexStr(char *dest, int val) {
 void short2HexStr(char *dest, short val) {
 	int i;
 	for (i = 0; i < 4; i++) {
-		dest[3-i] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
+		dest[3-i] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : '7');
 		val = val>>4;
 	}
-	dest[5] = 0;
+	dest[4] = 0;
 }
 
 void char2HexStr(char *dest, char val) {
-	dest[0] = ((val>>4) & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
-	dest[1] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : 'A');
+	dest[0] = ((val>>4) & 0xF) + ((((val>>4) & 0xF) < 10) ? '0' : '7');
+	dest[1] = (val & 0xF) + (((val & 0xF) < 10) ? '0' : '7');
 	dest[2] = 0;
 }
 
@@ -562,9 +562,9 @@ void speedSet() {
 }
 
 void flickSet() {
-	g_flicker++;
-	if (g_flicker > 1) {
-		g_flicker = 0;
-		g_twitch = 0;
+	gFlicker++;
+	if (gFlicker > 1) {
+		gFlicker = 0;
+		gTwitch = 0;
 	}
 }

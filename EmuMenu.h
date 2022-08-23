@@ -11,7 +11,7 @@ typedef void (*fptr)(void);
 
 extern u8 autoA;
 extern u8 autoB;
-extern u8 g_debugSet;
+extern u8 gDebugSet;
 
 extern bool settingsChanged;
 extern bool pauseEmulation;

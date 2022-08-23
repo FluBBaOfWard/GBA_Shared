@@ -22,7 +22,7 @@ static void exitUI(void);
 
 u8 autoA = 0;			// 0=off, 1=on, 2=R
 u8 autoB = 0;
-u8 g_debugSet = 0;		// Should we output debug text?
+u8 gDebugSet = 0;		// Should we output debug text?
 bool settingsChanged = false;
 bool pauseEmulation = false;
 bool enableExit = false;
@@ -155,7 +155,7 @@ void nullUI() {
 		return;
 	}
 
-	if (g_debugSet) {
+	if (gDebugSet) {
 		drawText(fpsText, 0);
 		nullUIDebug(key);
 	}
@@ -416,7 +416,7 @@ void infoOutput(const char *str) {
 }
 
 void debugOutput(const char *str) {
-	if (g_debugSet) {
+	if (gDebugSet) {
 		infoOutput(str);
 	}
 	debugOutputToEmulator(str);
@@ -506,7 +506,7 @@ void saveNVRAMSet() {
 }
 
 void debugTextSet() {
-	g_debugSet ^= 1;
+	gDebugSet ^= 1;
 }
 
 void sleepSet() {

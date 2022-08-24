@@ -14,9 +14,9 @@
 
 extern const fptr fnMain[];
 extern const fptr *const fnListX[];
-extern const u8 menuXitems[];
-extern const fptr drawuiX[];
-extern const u8 menuXback[];
+extern const u8 menuXItems[];
+extern const fptr drawUIX[];
+extern const u8 menuXBack[];
 
 static void exitUI(void);
 
@@ -127,7 +127,7 @@ void closeMenu() {
 }
 
 void backOutOfMenu() {
-	setSelectedMenu(menuXback[selectedMenu]);
+	setSelectedMenu(menuXBack[selectedMenu]);
 }
 
 void exitUI() {
@@ -169,7 +169,7 @@ void nullUI() {
 void subUI() {
 	int key;
 
-	key = getMenuInput(menuXitems[selectedMenu]);
+	key = getMenuInput(menuXItems[selectedMenu]);
 	if (key & (KEY_A)) {
 		fnListX[selectedMenu][selected]();
 	}
@@ -235,7 +235,7 @@ int getMenuPos(int keyHit, int sel, int itemCount) {
 }
 
 void redrawUI() {
-	drawuiX[selectedMenu]();
+	drawUIX[selectedMenu]();
 	outputLogToScreen();
 }
 

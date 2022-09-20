@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+// These are settings that are saved in the "emuSettings" variable.
 #define AUTOPAUSE_EMULATION	(1<<0)
 #define AUTOSAVE_SETTINGS	(1<<1)
 #define AUTOLOAD_STATE		(1<<2)
@@ -21,6 +22,10 @@ extern "C" {
 #define AUTOSLEEP_30MIN		(2<<8)
 #define AUTOSLEEP_OFF		(3<<8)
 #define AUTOSLEEP_MASK		(3<<8)
+
+// Misc settings that are not saved.
+#define UNSCALED		0	//display types
+#define SCALED			1
 
 #ifdef __cplusplus
 } // extern "C"

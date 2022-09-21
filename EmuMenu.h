@@ -74,6 +74,8 @@ void ui5(void);
 void ui6(void);
 void ui7(void);
 void ui8(void);
+void ui9(void);
+void ui10(void);
 
 void autoPauseGameSet();
 void autoStateSet();

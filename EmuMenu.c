@@ -4,6 +4,7 @@
 
 #include "EmuMenu.h"
 #include "EmuSettings.h"
+#include "FileHelper.h"
 #include "AsmExtra.h"
 #include "../Main.h"
 #include "../GUI.h"
@@ -36,7 +37,6 @@ static int selectedMain = 0;
 static int lastMainMenu = 1;
 static int mainUIPosition = 0;
 static int menuItemRow = 0;
-static int lineRepeat = 0;
 
 static int logBufPtr = 0;
 static int logBufPtrOld = 0;
@@ -245,28 +245,28 @@ void redrawUI() {
 	outputLogToScreen();
 }
 
-int drawFileList(const char *dTable, int sel, int items) {
-	int i, firstItem, selected;
+int drawFileList(int sel, int itemCount) {
+	int i, firstItem, selectedFile;
 	const char *buf;
-	lineRepeat = 0;				// Reset long filename position
 
-	firstItem = sel-11;
-	if (sel > (items-13)) {
-		firstItem = items-23;
+	firstItem = sel-9;
+	if (sel > (itemCount-11)) {
+		firstItem = itemCount-19;
 	}
 	if (firstItem < 0) {
 		firstItem = 0;
 	}
 
 	for (i = 0; i < (SCREEN_HEIGHT / 8 - 1); i++) {
+		buf = romNameFromPos( firstItem + i);
 		if ( buf == NULL ) {
 			buf = "";
 		}
 		if ( *buf == '~' ) {
 			buf++;
 		}
-		selected = (i == (sel-firstItem)?4:0);
-		drawItem(buf, i+1, selected);
+		selectedFile = (i == (sel-firstItem)?1:0);
+		drawItem(buf, i+1, selectedFile);
 	}
 	return (sel-firstItem);
 }

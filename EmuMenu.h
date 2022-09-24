@@ -27,7 +27,7 @@ int getInput(void);
 int getMenuInput(int menuItems);
 int getMenuPos(int keyHit, int sel, int menuItems);
 void redrawUI(void);
-int drawFileList(const char *dTable, int sel, int items);
+int drawFileList(int sel, int itemCount);
 void drawTextXY(const char *str, int col, int row);
 void drawText(const char *str, int row);
 void drawBText(const char *str, int row, int shadow);

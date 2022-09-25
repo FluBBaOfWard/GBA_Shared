@@ -259,9 +259,6 @@ int drawFileList(int sel, int itemCount) {
 
 	for (i = 0; i < (SCREEN_HEIGHT / 8 - 1); i++) {
 		buf = romNameFromPos( firstItem + i);
-		if ( buf == NULL ) {
-			buf = "";
-		}
 		if ( *buf == '~' ) {
 			buf++;
 		}

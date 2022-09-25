@@ -13,7 +13,7 @@ static const u8 *romData;
 /** Total number of roms found */
 int romCount = 0;
 
-// Set text_start (before moving the rom)
+// Set text_start
 extern u8 __rom_end__[];
 
 int romsAvailable = 0;
@@ -41,6 +41,10 @@ const u8 *findRomHeader(const u8 *base, u32 headerId)
 	return NULL;
 }
 
+static int offsetOfNextRom(const RomHeader *rh) {
+	return rh->filesize + sizeof(RomHeader);
+}
+
 int initFileHelper(u32 inHeaderId) {
 	romData = __rom_end__;
 	headerId = inHeaderId;
@@ -48,8 +52,7 @@ int initFileHelper(u32 inHeaderId) {
 	romCount = 0;
 	while (p && *(u32*)(p) == inHeaderId) {
 		// Count roms
-		const romheader *rh = (romheader *)p;
-		p += rh->filesize + sizeof(romheader);
+		p += offsetOfNextRom((const RomHeader *)p);
 		p = findRomHeader(p, inHeaderId);
 		romCount++;
 	}
@@ -57,25 +60,20 @@ int initFileHelper(u32 inHeaderId) {
 	return romCount;
 }
 
-static int offsetOfNextRom(romheader *rh) {
-	return rh->filesize + sizeof(romheader);
-}
-
 // Return ptr to Nth ROM (including rominfo struct)
-const u8 *findRom(int n) {
+const RomHeader *findRom(int n) {
 	const u8 *p = romData;
 	while (n--) {
-		p += offsetOfNextRom((romheader *)p);
+		p += offsetOfNextRom((const RomHeader *)p);
 	}
-	return p;
+	return (const RomHeader *)p;
 }
 
 const char *romNameFromPos(int pos) {
 	if (pos < romCount) {
-		romheader *rh = (romheader *)findRom(pos);
-		return rh->name;
+		return findRom(pos)->name;
 	}
-	return NULL;
+	return "";
 }
 
 void drawSpinner() {
@@ -84,10 +82,10 @@ void drawSpinner() {
 }
 
 //---------------------------------------------------------------------------------
-const romheader *browseForFile(void) {
+const RomHeader *browseForFile(void) {
 	static int pos = 0;
 	int oldPos = -1;
-	const romheader *rh;
+	const RomHeader *rh;
 	int pressed = 0;
 
 	if (romCount > 0) {
@@ -100,7 +98,7 @@ const romheader *browseForFile(void) {
 			pressed = getInput();
 			pos = getMenuPos(pressed, pos, romCount);
 			if (pressed & (KEY_A)) {
-				rh = (romheader *)findRom(pos);
+				rh = findRom(pos);
 				strlcpy(currentFilename, rh->name, sizeof(currentFilename));
 				return rh;
 			}

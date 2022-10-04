@@ -13,17 +13,21 @@
 #include "../io.h"
 #include "../Sound.h"
 
+#define MENU_MAX_DEPTH (8)
+
 extern const fptr fnMain[];
 extern const fptr *const fnListX[];
 extern const u8 menuXItems[];
 extern const fptr drawUIX[];
-extern const u8 menuXBack[];
 
 static void exitUI(void);
+static void setSelectedMenu(int menuNr);
+static void setSelectedMain(int menuNr);
 
 u8 autoA = 0;			// 0=off, 1=on, 2=R
 u8 autoB = 0;
-u8 gDebugSet = 0;		// Should we output debug text?
+
+bool gDebugSet = 0;		// Should we output debug text?
 bool settingsChanged = false;
 bool pauseEmulation = false;
 bool enableExit = false;
@@ -35,8 +39,11 @@ int selected = 0;
 static int selectedMenu = 0;
 static int selectedMain = 0;
 static int lastMainMenu = 1;
-static int mainUIPosition = 0;
 static int menuItemRow = 0;
+// How deep we are in the menu tree
+static int menuLevel = 0;
+static char menuPath[MENU_MAX_DEPTH];
+static char menuPositions[MENU_MAX_DEPTH];
 
 static int logBufPtr = 0;
 static int logBufPtrOld = 0;
@@ -64,46 +71,38 @@ void uiDummy() {
 }
 
 void ui1() {
-	setSelectedMenu(1);
+	setSelectedMain(1);
 }
 void ui2() {
-	setSelectedMenu(2);
+	enterMenu(2);
 }
 void ui3() {
-	setSelectedMenu(3);
+	enterMenu(3);
 }
 void ui4() {
-	setSelectedMenu(4);
+	enterMenu(4);
 }
 void ui5() {
-	setSelectedMenu(5);
+	enterMenu(5);
 }
 void ui6() {
-	setSelectedMenu(6);
+	enterMenu(6);
 }
 void ui7() {
-	setSelectedMenu(7);
+	enterMenu(7);
 }
 void ui8() {
-	setSelectedMenu(8);
+	enterMenu(8);
 }
 void ui9() {
-	setSelectedMenu(9);
+	enterMenu(9);
 }
 void ui10() {
-	setSelectedMenu(10);
+	enterMenu(10);
 }
 
 void setSelectedMenu(int menuNr) {
-	if (selectedMain == selectedMenu) {		// Are we going from a mainMenu to a subMenu?
-		mainUIPosition = selected;
-	}
 	selectedMenu = menuNr;
-	selected = 0;
-
-	if (selectedMain == selectedMenu) {		// Are we going back to a mainMenu?
-		selected = mainUIPosition;
-	}
 	if (selectedMenu == 0) {
 		exitUI();
 	}
@@ -114,9 +113,35 @@ void setSelectedMenu(int menuNr) {
 	redrawUI();
 }
 
+void setSelectedMain(int menuNr) {
+	menuLevel = 1;
+	selected = 0;
+	setSelectedMenu(menuNr);
+}
+
+void enterMenu(int menuNr) {
+	menuPath[menuLevel] = selectedMenu;
+	menuPositions[menuLevel] = selected;
+	menuLevel++;
+	if ( menuLevel >= MENU_MAX_DEPTH) {
+		menuLevel = MENU_MAX_DEPTH - 1;
+	}
+	selected = 0;
+	setSelectedMenu(menuNr);
+}
+
+void backOutOfMenu() {
+	menuLevel--;
+	if ( menuLevel < 0) {
+		menuLevel = 0;
+	}
+	selected = menuPositions[menuLevel];
+	setSelectedMenu(menuPath[menuLevel]);
+}
+
 void openMenu() {
 	enterGUI();
-	setSelectedMenu(lastMainMenu);
+	setSelectedMain(lastMainMenu);
 	setupMenuPalette();
 	setDarknessGs(8);
 	if (emuSettings & AUTOPAUSE_EMULATION) {	// Should we pause when menu is open?
@@ -129,11 +154,12 @@ void openMenu() {
 }
 
 void closeMenu() {
-	setSelectedMenu(0);
+	menuLevel = 0;
+	backOutOfMenu();
 }
 
-void backOutOfMenu() {
-	setSelectedMenu(menuXBack[selectedMenu]);
+bool isMenuOpen() {
+	return (selectedMenu != 0);
 }
 
 void exitUI() {
@@ -509,7 +535,7 @@ void saveNVRAMSet() {
 }
 
 void debugTextSet() {
-	gDebugSet ^= 1;
+	gDebugSet ^= true;
 }
 
 void sleepSet() {

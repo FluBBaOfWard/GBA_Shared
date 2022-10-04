@@ -11,8 +11,8 @@ typedef void (*fptr)(void);
 
 extern u8 autoA;
 extern u8 autoB;
-extern u8 gDebugSet;
 
+extern bool gDebugSet;
 extern bool settingsChanged;
 extern bool pauseEmulation;
 extern bool enableExit;
@@ -50,7 +50,7 @@ void debugOutput(const char *str);
 void nullUI(void);
 void subUI(void);
 void uiDummy(void);
-void setSelectedMenu(int menuNr);
+void enterMenu(int menuNr);
 void openMenu(void);
 void backOutOfMenu(void);
 void closeMenu(void);

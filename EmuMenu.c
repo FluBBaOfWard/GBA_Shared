@@ -7,7 +7,7 @@
 #include "FileHelper.h"
 #include "AsmExtra.h"
 #include "../Main.h"
-#include "../GUI.h"
+#include "../Gui.h"
 #include "../FileHandling.h"
 #include "../Gfx.h"
 #include "../io.h"

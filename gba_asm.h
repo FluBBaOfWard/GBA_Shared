@@ -216,6 +216,8 @@
 #define REG_P1CNT			0x132
 #define REG_WAITCNT			0x04000204
 
+#define REG_WRWAITCTL		0x04000800
+
 #define BLEND_NONE         (0<<6)
 #define BLEND_ALPHA        (1<<6)
 #define BLEND_FADE_WHITE   (2<<6)

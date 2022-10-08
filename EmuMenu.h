@@ -11,6 +11,7 @@ typedef void (*fptr)(void);
 
 extern u8 autoA;
 extern u8 autoB;
+extern u8 ewram;
 
 extern bool gDebugSet;
 extern bool settingsChanged;
@@ -90,6 +91,7 @@ void autoASet();
 void autoBSet();
 void speedSet();
 void flickSet();
+void ewramSet();
 
 #ifdef __cplusplus
 } // extern "C"

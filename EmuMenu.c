@@ -26,6 +26,7 @@ static void setSelectedMain(int menuNr);
 
 u8 autoA = 0;			// 0=off, 1=on, 2=R
 u8 autoB = 0;
+u8 ewram = 0;
 
 bool gDebugSet = 0;		// Should we output debug text?
 bool settingsChanged = false;
@@ -601,4 +602,9 @@ void flickSet() {
 		gFlicker = 0;
 		gTwitch = 0;
 	}
+}
+
+void ewramSet() {
+	ewram ^= 1;
+	setEWRAMSpeed(ewram & 1);
 }

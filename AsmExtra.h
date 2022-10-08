@@ -12,6 +12,12 @@ extern char fpsText[8];
 void suspend(void);
 
 /**
+ * Can be used to overclock EWRAM speed, doesn't work on GBA Micro.
+ * @param  overclock: true to overclock EWRAM.
+ */
+void setEWRAMSpeed(bool overclock);
+
+/**
  * Tries to read the Real Time Clock from the cartridge as implemented in Pokemon.
  * @return The time as BCD encoded ??SSMMHH, r1=??DDMMYY.
 */

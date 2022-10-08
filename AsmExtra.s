@@ -3,6 +3,7 @@
 #include "gba_asm.h"
 
 	.global suspend
+	.global setEWRAMSpeed
 	.global getTime
 	.global bin2BCD
 	.global getRandomNumber
@@ -57,6 +58,18 @@ susLoop:
 	eors r0,r0,#0xc
 	bne susLoop
 
+	bx lr
+;@----------------------------------------------------------------------------
+setEWRAMSpeed:				;@ in r0 = 0 normal, != 0 overclocked.
+	.type   setEWRAMSpeed STT_FUNC
+;@----------------------------------------------------------------------------
+	cmp r0,#0
+	ldr r2,=REG_WRWAITCTL
+	ldr r1,[r2]
+	bic r1,r1,#0x0F000000
+	orrne r1,r1,#0x0E000000		// 1 waitstate, overclocked
+	orreq r1,r1,#0x0D000000		// 2 waitstates, normal
+	str r1,[r2]
 	bx lr
 ;@----------------------------------------------------------------------------
 getTime:					;@ Out r0 = ??ssMMHH, r1 = ??DDMMYY

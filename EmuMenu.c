@@ -459,6 +459,7 @@ void debugOutput(const char *str) {
 
 void exitEmulator() {
 	if (enableExit) {
+		resetFlashCart();
 	}
 }
 

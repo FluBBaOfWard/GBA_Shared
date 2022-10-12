@@ -8,6 +8,9 @@ extern "C" {
 /// The current FPS as calculated by the calculateFPS function.
 extern char fpsText[8];
 
+/// Reset Flashcart and reboot GBA.
+void resetFlashCart(void);
+
 /// Put the GBA to sleep, sets Start+Select as wakeup keys. Doesn't seem to work right now, maybe some kind of IRQ not enabled?
 void suspend(void);
 

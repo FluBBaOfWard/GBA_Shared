@@ -2,6 +2,7 @@
 
 #include "gba_asm.h"
 
+	.global resetFlashCart
 	.global suspend
 	.global setEWRAMSpeed
 	.global getTime
@@ -25,6 +26,27 @@
 
 	.section .ewram,"ax"
 	.align 2
+
+;@----------------------------------------------------------------------------
+resetFlashCart:
+	.type   doReset STT_FUNC
+;@----------------------------------------------------------------------------
+	mov r1,#REG_BASE
+	mov r0,#0
+	strh r0,[r1,#REG_DMA0CNT_H]	;@ Stop all DMA
+	strh r0,[r1,#REG_DMA1CNT_H]
+	strh r0,[r1,#REG_DMA2CNT_H]
+	strh r0,[r1,#REG_DMA3CNT_H]
+	add r1,r1,#0x200
+	str r0,[r1,#8]				;@ Interrupts off
+
+	;@ Copy code to EWRAM and execute it
+	adr r0,suspend				;@ Temporary buffer for reset code
+	ldr r1,=VISOLY_START		;@ Source address
+	ldr r2,=VISOLY_END			;@ End
+	sub r2,r2,r1				;@ Subtract to get size
+	mov lr,r0
+	b memcpy	  				;@ and jump to code too
 
 ;@----------------------------------------------------------------------------
 suspend:					;@ Called from ui.c and cpu.s

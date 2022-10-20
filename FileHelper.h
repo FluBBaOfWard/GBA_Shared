@@ -18,7 +18,19 @@ void drawSpinner(void);
 
 const RomHeader *browseForFile(void);
 
+/**
+ * Return ptr to Nth ROM (including rominfo struct)
+ * @param  n: rom number to find.
+ * @return RomHeader to selected ROM or null if not found.
+ */
 const RomHeader *findRom(int n);
+
+/**
+ * Return ptr to Nth BIOS (including rominfo struct)
+ * @param  n: Bios number to find.
+ * @return RomHeader to selected BIOS or null if not found.
+ */
+const RomHeader *findBios(int n);
 
 /**
  * Returns the name of the rom as the given position.

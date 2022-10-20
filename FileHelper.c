@@ -9,7 +9,10 @@
 
 
 static u32 headerId = 0;
-static const u8 *romData;
+/** Pointer to roms including bioses */
+static const RomHeader *romData;
+/** Pointer to games */
+static const RomHeader *romGames;
 /** Total number of roms found */
 int romCount = 0;
 
@@ -24,7 +27,7 @@ static const char *const spinner[4]={"\\","|","/","-"};
 static char spinnerCount = 0;
 //---------------------------------------------------------------------------------
 
-const u8 *findRomHeader(const u8 *base, u32 headerId)
+const RomHeader *findRomHeader(const RomHeader *base, u32 headerId)
 {
 	// Look up to 256 bytes later for a ROM header
 	const u32 *p=(u32*)base;
@@ -32,7 +35,7 @@ const u8 *findRomHeader(const u8 *base, u32 headerId)
 	int i;
 	for (i=0; i<64; i++) {
 		if (*p == headerId) {
-			return ((u8*)p);
+			return ((RomHeader *)p);
 		}
 		else {
 			p++;
@@ -41,32 +44,53 @@ const u8 *findRomHeader(const u8 *base, u32 headerId)
 	return NULL;
 }
 
-static int offsetOfNextRom(const RomHeader *rh) {
-	return rh->filesize + sizeof(RomHeader);
+static const RomHeader *getNextRom(const RomHeader *rh) {
+	const u8 *p = (const u8 *)rh;
+	return (const RomHeader *)(p + rh->filesize + sizeof(RomHeader));
 }
 
 int initFileHelper(u32 inHeaderId) {
-	romData = __rom_end__;
+	romData = (const RomHeader *)__rom_end__;
+	romGames = romData;
 	headerId = inHeaderId;
-	const u8 *p = romData;
+	const RomHeader *p = romData;
 	romCount = 0;
-	while (p && *(u32*)(p) == inHeaderId) {
+	char isBios;
+	while (p && p->identifier == inHeaderId) {
+		isBios = p->bios;
 		// Count roms
-		p += offsetOfNextRom((const RomHeader *)p);
+		p = getNextRom(p);
 		p = findRomHeader(p, inHeaderId);
-		romCount++;
+		if (isBios & 1) {
+			romGames = p;
+		} else {
+			romCount++;
+		}
 	}
 	romsAvailable = romCount;
 	return romCount;
 }
 
-// Return ptr to Nth ROM (including rominfo struct)
 const RomHeader *findRom(int n) {
-	const u8 *p = romData;
+	const RomHeader *rh = romGames;
 	while (n--) {
-		p += offsetOfNextRom((const RomHeader *)p);
+		rh = getNextRom(rh);
 	}
-	return (const RomHeader *)p;
+	if (rh->identifier == headerId) {
+		return rh;
+	}
+	return NULL;
+}
+
+const RomHeader *findBios(int n) {
+	const RomHeader *rh = romData;
+	while (n--) {
+		rh = getNextRom(rh);
+	}
+	if (rh->identifier == headerId && rh->bios & 1) {
+		return rh;
+	}
+	return NULL;
 }
 
 const char *romNameFromPos(int pos) {

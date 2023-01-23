@@ -8,23 +8,23 @@
 #include "../FileHandling.h"
 
 
-static u32 headerId = 0;
+EWRAM_BSS static u32 headerId = 0;
 /** Pointer to roms including bioses */
-static const RomHeader *romData;
+EWRAM_BSS static const RomHeader *romData;
 /** Pointer to games */
-static const RomHeader *romGames;
+EWRAM_BSS static const RomHeader *romGames;
 /** Total number of roms found */
-int romCount = 0;
+EWRAM_BSS int romCount = 0;
 
 // Set text_start
 extern u8 __rom_end__[];
 
-int romsAvailable = 0;
+EWRAM_BSS int romsAvailable = 0;
 
-char currentFilename[FILENAMEMAXLENGTH];
+EWRAM_BSS char currentFilename[FILENAMEMAXLENGTH];
 
-static const char *const spinner[4]={"\\","|","/","-"};
-static char spinnerCount = 0;
+EWRAM_DATA static const char *const spinner[4]={"\\","|","/","-"};
+EWRAM_BSS static char spinnerCount = 0;
 //---------------------------------------------------------------------------------
 
 const RomHeader *findRomHeader(const RomHeader *base, u32 headerId)

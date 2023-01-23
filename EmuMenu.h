@@ -7,6 +7,14 @@ extern "C" {
 
 #define ARRSIZE(xxxx) (sizeof((xxxx))/sizeof((xxxx)[0]))
 
+#ifndef EWRAM_BSS
+#define EWRAM_BSS	__attribute__((section(".sbss")))
+#endif
+
+#ifndef EWRAM_DATA
+#define EWRAM_DATA	__attribute__((section(".ewram")))
+#endif
+
 typedef void (*fptr)(void);
 
 extern u8 autoA;

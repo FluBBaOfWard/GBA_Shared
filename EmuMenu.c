@@ -24,33 +24,33 @@ static void exitUI(void);
 static void setSelectedMenu(int menuNr);
 static void setSelectedMain(int menuNr);
 
-u8 autoA = 0;			// 0=off, 1=on, 2=R
-u8 autoB = 0;
-u8 ewram = 0;
+EWRAM_BSS u8 autoA = 0;			// 0=off, 1=on, 2=R
+EWRAM_BSS u8 autoB = 0;
+EWRAM_BSS u8 ewram = 0;
 
-bool gDebugSet = 0;		// Should we output debug text?
-bool settingsChanged = false;
-bool pauseEmulation = false;
-bool enableExit = false;
+EWRAM_BSS bool gDebugSet = 0;		// Should we output debug text?
+EWRAM_BSS bool settingsChanged = false;
+EWRAM_BSS bool pauseEmulation = false;
+EWRAM_BSS bool enableExit = false;
 
-int emuSettings = 0;
-int sleepTime = 60*60*5;			// 5 min
-int selected = 0;
+EWRAM_BSS int emuSettings = 0;
+EWRAM_DATA int sleepTime = 60*60*5;			// 5 min
+EWRAM_BSS int selected = 0;
 
-static int selectedMenu = 0;
-static int selectedMain = 0;
-static int lastMainMenu = 1;
-static int menuItemRow = 0;
+EWRAM_BSS static int selectedMenu = 0;
+EWRAM_BSS static int selectedMain = 0;
+EWRAM_DATA static int lastMainMenu = 1;
+EWRAM_BSS static int menuItemRow = 0;
 // How deep we are in the menu tree
-static int menuLevel = 0;
-static char menuPath[MENU_MAX_DEPTH];
-static char menuPositions[MENU_MAX_DEPTH];
+EWRAM_BSS static int menuLevel = 0;
+EWRAM_BSS static char menuPath[MENU_MAX_DEPTH];
+EWRAM_BSS static char menuPositions[MENU_MAX_DEPTH];
 
-static int logBufPtr = 0;
-static int logBufPtrOld = 0;
-static int logTimer = 0;
+EWRAM_BSS static int logBufPtr = 0;
+EWRAM_BSS static int logBufPtrOld = 0;
+EWRAM_BSS static int logTimer = 0;
 
-static char logBuffer[8][32];
+EWRAM_BSS static char logBuffer[8][32];
 
 void guiRunLoop(void) {
 	fnMain[selectedMenu]();

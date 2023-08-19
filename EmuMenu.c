@@ -169,20 +169,20 @@ bool isMenuOpen() {
 }
 
 void exitUI() {
-	exitGUI();
-	pauseEmulation = false;
-	setMuteSoundGUI();
 	if (settingsChanged && (emuSettings & AUTOSAVE_SETTINGS)) {
 		saveSettings();
 		settingsChanged = false;
 	}
-	setDarknessGs(0);
-	paletteTxAll();
-
 	lastMainMenu = selectedMain;
 	if (lastMainMenu < 1) {
 		lastMainMenu = 1;
 	}
+
+	setDarknessGs(0);
+	paletteTxAll();
+	exitGUI();
+	pauseEmulation = false;
+	setMuteSoundGUI();
 }
 
 /// This is during emulation.

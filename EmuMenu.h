@@ -91,6 +91,7 @@ void autoStateSet();
 void autoSettingsSet();
 void autoNVRAMSet();
 void saveNVRAMSet();
+void soundEnableSet();
 void debugTextSet();
 void sleepSet();
 void powerSaveSet();

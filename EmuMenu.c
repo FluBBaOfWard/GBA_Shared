@@ -541,6 +541,11 @@ void saveNVRAMSet() {
 	settingsChanged = true;
 }
 
+void soundEnableSet() {
+	emuSettings ^= SOUND_ENABLE;
+	settingsChanged = true;
+}
+
 void debugTextSet() {
 	gDebugSet ^= true;
 }

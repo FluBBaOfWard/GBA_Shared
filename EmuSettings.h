@@ -22,6 +22,7 @@ extern "C" {
 #define AUTOSLEEP_30MIN		(2<<8)
 #define AUTOSLEEP_OFF		(3<<8)
 #define AUTOSLEEP_MASK		(3<<8)
+#define SOUND_ENABLE		(1<<10)
 
 // Misc settings that are not saved.
 #define UNSCALED		0	//display types

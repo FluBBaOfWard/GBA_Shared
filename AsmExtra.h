@@ -40,6 +40,14 @@ int bin2BCD(int number);
  */
 int getRandomNumber(int maxValue);
 
+/**
+ * Guaranteed to only copy bytes, usefull for copying mem to GBA SRAM.
+ * @param dst: The destination, this should probably be in the 0x0E000000 range.
+ * @param src: The source, can be anything.
+ * @param count: Number of bytes to copy.
+ */
+void bytecopy_(u8 *dst, const u8 *src, int count);
+
 /// Calculates fps, needs to be called _every_ frame, eg. from the VBlank interrupt.
 void calculateFPS(void);
 

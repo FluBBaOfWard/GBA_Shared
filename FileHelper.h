@@ -7,11 +7,11 @@ extern "C" {
 
 #include "../EmuBase.h"
 
-#define FILENAMEMAXLENGTH (32)
+#define FILENAME_MAX_LENGTH (32)
 
 extern int romsAvailable;
 
-extern char currentFilename[FILENAMEMAXLENGTH];
+extern char currentFilename[FILENAME_MAX_LENGTH];
 
 int initFileHelper(u32 headerId);
 void drawSpinner(void);
@@ -33,7 +33,7 @@ const RomHeader *findRom(int n);
 const RomHeader *findBios(int n);
 
 /**
- * Returns the name of the rom as the given position.
+ * Returns the name of the rom at the given position.
  * @param  pos: Position of the rom in the list.
  * @return The name of the rom if there is one, otherwise returns "".
  */

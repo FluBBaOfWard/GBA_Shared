@@ -21,7 +21,7 @@ extern u8 __rom_end__[];
 
 EWRAM_BSS int romsAvailable = 0;
 
-EWRAM_BSS char currentFilename[FILENAMEMAXLENGTH];
+EWRAM_BSS char currentFilename[FILENAME_MAX_LENGTH];
 
 EWRAM_DATA static const char *const spinner[4]={"\\","|","/","-"};
 EWRAM_BSS static char spinnerCount = 0;
@@ -55,15 +55,15 @@ int initFileHelper(u32 inHeaderId) {
 	headerId = inHeaderId;
 	const RomHeader *p = romData;
 	romCount = 0;
-	char isBios;
 	while (p && p->identifier == inHeaderId) {
-		isBios = p->bios;
+		char isBios = p->bios;
 		// Count roms
 		p = getNextRom(p);
 		p = findRomHeader(p, inHeaderId);
 		if (isBios & 1) {
 			romGames = p;
-		} else {
+		}
+		else {
 			romCount++;
 		}
 	}

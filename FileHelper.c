@@ -50,10 +50,14 @@ static const RomHeader *getNextRom(const RomHeader *rh) {
 }
 
 int initFileHelper(u32 inHeaderId) {
-	romData = (const RomHeader *)__rom_end__;
+	const RomHeader *p = (const RomHeader *)__rom_end__;
+	// Check for splash screen
+	if (p && p->identifier != inHeaderId) {
+		p = (const RomHeader *)((const u8 *)p + 240*160*2);
+	}
+	romData = p;
 	romGames = romData;
 	headerId = inHeaderId;
-	const RomHeader *p = romData;
 	romCount = 0;
 	while (p && p->identifier == inHeaderId) {
 		char isBios = p->bios;

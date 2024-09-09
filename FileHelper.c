@@ -49,23 +49,32 @@ static const RomHeader *getNextRom(const RomHeader *rh) {
 	return (const RomHeader *)(p + rh->filesize + sizeof(RomHeader));
 }
 
-int initFileHelper(u32 inHeaderId) {
-	const RomHeader *p = (const RomHeader *)__rom_end__;
-	// Check for splash screen
-	if (p && p->identifier != inHeaderId) {
-		p = (const RomHeader *)((const u8 *)p + 240*160*2);
+const u16 *getSplashScreen(u32 inHeaderId) {
+	const u16 *sp = (const u16 *)__rom_end__;
+	const RomHeader *rh = (const RomHeader *)(sp + 240*160);
+	if (rh->identifier == inHeaderId) {
+		return sp;
 	}
-	romData = p;
+	return NULL;
+}
+
+int initFileHelper(u32 inHeaderId) {
+	const RomHeader *rh = (const RomHeader *)__rom_end__;
+	// Check for splash screen
+	if (rh->identifier != inHeaderId) {
+		rh = (const RomHeader *)((const u8 *)rh + 240*160*2);
+	}
+	romData = rh;
 	romGames = romData;
 	headerId = inHeaderId;
 	romCount = 0;
-	while (p && p->identifier == inHeaderId) {
-		char isBios = p->bios;
+	while (rh && rh->identifier == inHeaderId) {
+		char isBios = rh->bios;
 		// Count roms
-		p = getNextRom(p);
-		p = findRomHeader(p, inHeaderId);
+		rh = getNextRom(rh);
+		rh = findRomHeader(rh, inHeaderId);
 		if (isBios & 1) {
-			romGames = p;
+			romGames = rh;
 		}
 		else {
 			romCount++;

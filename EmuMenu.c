@@ -512,6 +512,30 @@ void gbaSleep() {
 	}
 }
 
+void showSplash(const u16 *splash) {
+	if (splash != NULL) {
+		int i;
+		SetMode(LCDC_OFF);		// Screen OFF
+		memcpy((u16*)VRAM, splash, 240*160*2);
+		waitVBlank();
+		REG_BG2CNT = 0x0000;
+		SetMode(MODE_3 | BG2_ON);
+		for (i=16;i>=0;i--) {	// Fade from white
+			setBrightnessAll(i);
+			waitVBlank();
+		}
+		for (i=0;i<150;i++) {	// Wait 2.5 seconds
+			waitVBlank();
+			if (REG_KEYINPUT == 0x030f){
+//				gameboyplayer = 1;
+//				gbaversion = 3;
+			}
+		}
+		memset((u16*)VRAM, 0, 240*160*2);
+	}
+}
+
+
 //---------------------------------------------
 
 void autoPauseGameSet() {

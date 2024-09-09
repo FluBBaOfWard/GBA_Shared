@@ -13,7 +13,13 @@ extern int romsAvailable;
 
 extern char currentFilename[FILENAME_MAX_LENGTH];
 
+/**
+ * Tries to find appended roms through the supplied headerId.
+ * @param headerId: The id to use when finding the roms.
+ * @return The number of found roms.
+ */
 int initFileHelper(u32 headerId);
+
 void drawSpinner(void);
 
 const RomHeader *browseForFile(void);
@@ -38,6 +44,13 @@ const RomHeader *findBios(int n);
  * @return The name of the rom if there is one, otherwise returns "".
  */
 const char *romNameFromPos(int pos);
+
+/**
+ * Returns a pointer to the splash screen if found, else null.
+ * @param headerId: The id to use when finding the roms.
+ * @return A pointer to the splash screen or null.
+ */
+const u16 *getSplashScreen(u32 inHeaderId);
 
 #ifdef __cplusplus
 } // extern "C"

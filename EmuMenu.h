@@ -70,6 +70,7 @@ void fadeToWhite();
 void scrollL(int offset, int fade);
 void scrollR(int offset);
 void gbaSleep(void);
+void showSplash(const u16 *splash);
 void exitEmulator(void);
 
 void uiNullDefault(void);

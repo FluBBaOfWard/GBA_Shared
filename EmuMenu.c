@@ -9,32 +9,31 @@
 #include "../Main.h"
 #include "../Gui.h"
 #include "../FileHandling.h"
-#include "../Gfx.h"
+#include "../Gfx.h"				// gFlicker & gTwitch
 #include "../io.h"
 #include "../Sound.h"
 
 #define MENU_MAX_DEPTH (8)
 
-extern const fptr fnMain[];
-extern const fptr *const fnListX[];
-extern const u8 menuXItems[];
-extern const fptr drawUIX[];
+extern const Menu *const menus[];
 
 static void exitUI(void);
 static void setSelectedMenu(int menuNr);
 static void setSelectedMain(int menuNr);
+static void nullUI(void);
+static void subUI(void);
 
 EWRAM_BSS u8 autoA = 0;			// 0=off, 1=on, 2=R
 EWRAM_BSS u8 autoB = 0;
 EWRAM_BSS u8 ewram = 0;
 
-EWRAM_BSS bool gDebugSet = 0;		// Should we output debug text?
+EWRAM_BSS bool gDebugSet = false;
 EWRAM_BSS bool settingsChanged = false;
 EWRAM_BSS bool pauseEmulation = false;
 EWRAM_BSS bool enableExit = false;
 
 EWRAM_BSS int emuSettings = 0;
-EWRAM_DATA int sleepTime = 60*60*5;			// 5 min
+EWRAM_DATA int sleepTime = 60*60*5;
 EWRAM_BSS int selected = 0;
 
 EWRAM_BSS static int selectedMenu = 0;
@@ -53,7 +52,12 @@ EWRAM_BSS static int logTimer = 0;
 EWRAM_BSS static char logBuffer[8][32];
 
 void guiRunLoop(void) {
-	fnMain[selectedMenu]();
+	if (selectedMenu == 0) {
+		nullUI();
+	}
+	else {
+		subUI();
+	}
 }
 
 void uiNullDefault() {
@@ -61,12 +65,21 @@ void uiNullDefault() {
 //	drawText("     press L+R for menu.", 10);
 }
 
-
-void uiYesNo() {
-	setupSubMenu("Are you sure?");
-	drawSubItem("Yes ", 0);
-	drawSubItem("No ", 0);
+void uiAuto() {
+	const Menu *menu = menus[selectedMenu];
+	setupSubMenuText();
+	if (menuLevel > 1) {
+		for (int i=0; i<menu->itemCount; i++) {
+			drawSubItem(menu->items[i].text, 0);
+		}
+	}
+	else {
+		for (int i=0; i<menu->itemCount; i++) {
+			drawMenuItem(menu->items[i].text);
+		}
+	}
 }
+
 
 void uiDummy() {
 }
@@ -205,11 +218,10 @@ void nullUI() {
 
 /// This is during menu.
 void subUI() {
-	int key;
+	const int key = getMenuInput(menus[selectedMenu]->itemCount);
 
-	key = getMenuInput(menuXItems[selectedMenu]);
 	if (key & (KEY_A)) {
-		fnListX[selectedMenu][selected]();
+		menus[selectedMenu]->items[selected].fn();
 	}
 	if (key & (KEY_B)) {
 		backOutOfMenu();
@@ -273,7 +285,7 @@ int getMenuPos(int keyHit, int sel, int itemCount) {
 }
 
 void redrawUI() {
-	drawUIX[selectedMenu]();
+	menus[selectedMenu]->drawFunc();
 	outputLogToScreen();
 }
 
@@ -324,6 +336,9 @@ void drawText(const char *str, int row) {
 	drawItemXY(str, 0, row, 0);
 }
 
+void setupSubMenuText(void) {
+	setupSubMenu(menus[selectedMenu]->header);
+}
 void setupSubMenu(const char *menuString) {
 	int len = strlen(menuString);
 	menuItemRow = 0;

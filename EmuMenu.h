@@ -7,6 +7,8 @@ extern "C" {
 
 #define ARRSIZE(xxxx) (sizeof((xxxx))/sizeof((xxxx)[0]))
 
+#define MENU_M(name,draw,list) {name, draw, ARRSIZE(list), list}
+
 #ifndef EWRAM_BSS
 #define EWRAM_BSS	__attribute__((section(".sbss")))
 #endif
@@ -17,16 +19,44 @@ extern "C" {
 
 typedef void (*fptr)(void);
 
+// MenuItem
+typedef struct {
+	/// Text of item
+	const char *const text;
+	/// Function of item
+	const fptr fn;
+} MItem;
+
+// Menu
+typedef struct {
+	/// Name of menu
+	const char *const header;
+	/// Function to draw menu
+	const fptr drawFunc;
+	/// Number of items in the menu
+	int itemCount;
+	/// List of menu items
+	const MItem *items;
+} Menu;
+
+/// Autofire for button A
 extern u8 autoA;
+/// Autofire for button B
 extern u8 autoB;
 extern u8 ewram;
 
+/// Should we output debug text?
 extern bool gDebugSet;
+/// True if any settings have changed that are not saved.
 extern bool settingsChanged;
+/// True if emulation paused right now.
 extern bool pauseEmulation;
+/// True if exit menu is enabled.
 extern bool enableExit;
 
+/// Various common settings
 extern int emuSettings;
+/// Current set sleep time, default 5min.
 extern int sleepTime;
 /// This is the current row in the menu.
 extern int selected;
@@ -45,6 +75,7 @@ void drawSubItem(const char *str1, const char *str2);
 void drawMenuItem(const char *str1);
 void drawItemXY(const char *str, int col, int row, int hiLite);
 void drawItem(const char *str, int row, int hiLite);
+void setupSubMenuText(void);
 void setupSubMenu(const char *menuString);
 void setMenuItemRow(int row);
 void cls(int chrMap);
@@ -56,8 +87,6 @@ void infoOutput(const char *str);
 void updateInfoLog(void);
 void outputLogToScreen(void);
 void debugOutput(const char *str);
-void nullUI(void);
-void subUI(void);
 void uiDummy(void);
 void enterMenu(int menuNr);
 void openMenu(void);
@@ -74,7 +103,7 @@ void showSplash(const u16 *splash);
 void exitEmulator(void);
 
 void uiNullDefault(void);
-void uiYesNo(void);
+void uiAuto(void);
 
 void ui1(void);
 void ui2(void);

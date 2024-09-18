@@ -65,15 +65,25 @@ void uiNullDefault() {
 //	drawText("     press L+R for menu.", 10);
 }
 
-void uiAuto() {
+void uiAutoSub() {
 	const Menu *menu = menus[selectedMenu];
+	for (int i=0; i<menu->itemCount; i++) {
+		const char *txt2 = NULL;
+		tfptr tf = menu->items[i].txt2;
+		if (tf != NULL) {
+			txt2 = tf();
+		}
+		drawSubItem(menu->items[i].text, txt2);
+	}
+}
+
+void uiAuto() {
 	setupSubMenuText();
 	if (menuLevel > 1) {
-		for (int i=0; i<menu->itemCount; i++) {
-			drawSubItem(menu->items[i].text, 0);
-		}
+		uiAutoSub();
 	}
 	else {
+		const Menu *menu = menus[selectedMenu];
 		for (int i=0; i<menu->itemCount; i++) {
 			drawMenuItem(menu->items[i].text);
 		}
@@ -553,6 +563,11 @@ void showSplash(const u16 *splash) {
 
 //---------------------------------------------
 
+static const char *const autoTxt[]  = {"Off", "On", "With R"};
+static const char *const speedTxt[] = {"Normal", "200%", "Max", "50%"};
+//static const char *const brighTxt[] = {"I", "II", "III", "IIII", "IIIII"};
+static const char *const sleepTxt[] = {"5min", "10min", "30min", "Off"};
+
 void autoPauseGameSet() {
 	emuSettings ^= AUTOPAUSE_EMULATION;
 	settingsChanged = true;
@@ -560,9 +575,17 @@ void autoPauseGameSet() {
 	setMuteSoundGUI();
 }
 
+const char *getAutoPauseGameText() {
+	return autoTxt[emuSettings&AUTOPAUSE_EMULATION];
+}
+
 void autoStateSet() {
 	emuSettings ^= AUTOLOAD_STATE;
 	settingsChanged = true;
+}
+
+const char *getAutoStateText() {
+	return autoTxt[(emuSettings&AUTOLOAD_STATE)>>2];
 }
 
 void autoSettingsSet() {
@@ -570,14 +593,26 @@ void autoSettingsSet() {
 	settingsChanged = true;
 }
 
+const char *getAutoSettingsText() {
+	return autoTxt[(emuSettings&AUTOSAVE_SETTINGS)>>1];
+}
+
 void autoNVRAMSet() {
 	emuSettings ^= AUTOLOAD_NVRAM;
 	settingsChanged = true;
 }
 
+const char *getAutoNVRAMText() {
+	return autoTxt[(emuSettings&AUTOLOAD_NVRAM)>>10];
+}
+
 void saveNVRAMSet() {
 	emuSettings ^= AUTOSAVE_NVRAM;
 	settingsChanged = true;
+}
+
+const char *getSaveNVRAMText() {
+	return autoTxt[(emuSettings&AUTOSAVE_NVRAM)>>11];
 }
 
 void soundEnableSet() {
@@ -587,6 +622,10 @@ void soundEnableSet() {
 
 void debugTextSet() {
 	gDebugSet ^= true;
+}
+
+const char *getDebugText() {
+	return autoTxt[gDebugSet&1];
 }
 
 void sleepSet() {
@@ -607,6 +646,10 @@ void sleepSet() {
 	settingsChanged = true;
 }
 
+const char *getSleepText() {
+	return sleepTxt[(emuSettings&AUTOSLEEP_MASK)>>8];
+}
+
 void autoASet() {
 	autoA++;
 	joyCfg |= KEY_A+(KEY_A<<16);
@@ -619,6 +662,10 @@ void autoASet() {
 	else {
 		autoA = 0;
 	}
+}
+
+const char *getAutoAText() {
+	return autoTxt[autoA];
 }
 
 void autoBSet() {
@@ -635,10 +682,18 @@ void autoBSet() {
 	}
 }
 
+const char *getAutoBText() {
+	return autoTxt[autoB];
+}
+
 void speedSet() {
 	int i = (emuSettings+0x40) & EMUSPEED_MASK;
 	emuSettings = (emuSettings & ~EMUSPEED_MASK) | i;
 	setEmuSpeed(i>>5);
+}
+
+const char *getSpeedText() {
+	return speedTxt[(emuSettings&EMUSPEED_MASK)>>6];
 }
 
 void flickSet() {
@@ -649,7 +704,15 @@ void flickSet() {
 	}
 }
 
+const char *getFlickText() {
+	return autoTxt[gFlicker&1];
+}
+
 void ewramSet() {
 	ewram ^= 1;
 	setEWRAMSpeed(ewram & 1);
+}
+
+const char *getEWRAMText() {
+	return autoTxt[ewram&1];
 }

@@ -18,6 +18,7 @@ extern "C" {
 #endif
 
 typedef void (*fptr)(void);
+typedef const char *const (*tfptr)(void);
 
 // MenuItem
 typedef struct {
@@ -25,6 +26,8 @@ typedef struct {
 	const char *const text;
 	/// Function of item
 	const fptr fn;
+	/// Function of to get second text
+	const tfptr txt2;
 } MItem;
 
 // Menu
@@ -116,21 +119,31 @@ void ui8(void);
 void ui9(void);
 void ui10(void);
 
-void autoPauseGameSet();
-void autoStateSet();
-void autoSettingsSet();
-void autoNVRAMSet();
-void saveNVRAMSet();
-void soundEnableSet();
-void debugTextSet();
-void sleepSet();
-void powerSaveSet();
-void screenSwapSet();
-void autoASet();
-void autoBSet();
-void speedSet();
-void flickSet();
-void ewramSet();
+void autoPauseGameSet(void);
+const char *getAutoPauseGameText(void);
+void autoStateSet(void);
+const char *getAutoStateText(void);
+void autoSettingsSet(void);
+const char *getAutoSettingsText(void);
+void autoNVRAMSet(void);
+const char *getAutoNVRAMText(void);
+void saveNVRAMSet(void);
+const char *getSaveNVRAMText(void);
+void soundEnableSet(void);
+void debugTextSet(void);
+const char *getDebugText(void);
+void sleepSet(void);
+const char *getSleepText(void);
+void autoASet(void);
+const char *getAutoAText(void);
+void autoBSet(void);
+const char *getAutoBText(void);
+void speedSet(void);
+const char *getSpeedText(void);
+void flickSet(void);
+const char *getFlickText(void);
+void ewramSet(void);
+const char *getEWRAMText(void);
 
 #ifdef __cplusplus
 } // extern "C"

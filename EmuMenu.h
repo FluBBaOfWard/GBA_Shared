@@ -42,6 +42,9 @@ typedef struct {
 	const MItem *items;
 } Menu;
 
+extern const char *const autoTxt[];
+extern const char *const brighTxt[];
+
 /// Autofire for button A
 extern u8 autoA;
 /// Autofire for button B
@@ -130,10 +133,14 @@ const char *getAutoNVRAMText(void);
 void saveNVRAMSet(void);
 const char *getSaveNVRAMText(void);
 void soundEnableSet(void);
+const char *getSoundEnableText(void);
 void debugTextSet(void);
 const char *getDebugText(void);
 void sleepSet(void);
 const char *getSleepText(void);
+/// Change gamma (brightness)
+void gammaSet(void);
+const char *getGammaText(void);
 void autoASet(void);
 const char *getAutoAText(void);
 void autoBSet(void);

@@ -6,6 +6,7 @@ Shared code for all my emulators on the Nintendo GBA
 * <https://github.com/FluBBaOfWard/BlackTigerGBA>
 * <https://github.com/FluBBaOfWard/GhostsNGoblinsGBA>
 * <https://github.com/FluBBaOfWard/GreenBeretGBA>
+* <https://github.com/FluBBaOfWard/LodjurGBA>
 * <https://github.com/FluBBaOfWard/NGPGBA>
 * <https://github.com/FluBBaOfWard/RenegadeGBA>
 * <https://github.com/FluBBaOfWard/SonSonGBA>
@@ -17,6 +18,6 @@ Shared code for all my emulators on the Nintendo GBA
 
 Fredrik Ahlström
 
-X/Twitter @TheRealFluBBa
-
+<https://bsky.app/profile/therealflubba.bsky.social>
 <https://www.github.com/FluBBaOfWard>
+X/Twitter @TheRealFluBBa

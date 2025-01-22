@@ -19,5 +19,7 @@ Shared code for all my emulators on the Nintendo GBA
 Fredrik Ahlström
 
 <https://bsky.app/profile/therealflubba.bsky.social>
+
 <https://www.github.com/FluBBaOfWard>
+
 X/Twitter @TheRealFluBBa

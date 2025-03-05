@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "../EmuBase.h"
+#include "../Emubase.h"
 
 #define FILENAME_MAX_LENGTH (32)
 

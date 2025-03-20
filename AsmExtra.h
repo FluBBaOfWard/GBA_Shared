@@ -51,6 +51,9 @@ void bytecopy_(u8 *dst, const u8 *src, int count);
 /// Calculates fps, needs to be called _every_ frame, eg. from the VBlank interrupt.
 void calculateFPS(void);
 
+/// Set target FPS, used when displaying FPS.
+void setTargetFPS(int lcdFPS);
+
 /**
  * Converts 24bit RGB palette to 15bit BGR palette, while running gamma conversion on it.
  * @param  *dest: Destination of result, needs to be aligned to 16bit.

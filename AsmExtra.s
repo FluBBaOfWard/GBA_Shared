@@ -2,20 +2,23 @@
 
 #include "gba_asm.h"
 
-	.global resetFlashCart
-	.global suspend
-	.global setEWRAMSpeed
+	.global fpsValue
+	.global fpsText
+	.global fpsTarget
+
 	.global getTime
 	.global bin2BCD
 	.global getRandomNumber
 	.global setupSpriteScaling
 	.global calculateFPS
-	.global fpsValue
-	.global fpsText
+	.global setTargetFPS
 	.global convertPalette
 	.global debugOutputToEmulator
 	.global r0OutputToEmulator
 	.global debugOutput_asm
+	.global resetFlashCart
+	.global suspend
+	.global setEWRAMSpeed
 	.global bytecopy_
 	.global memclr_
 	.global memset_
@@ -299,10 +302,23 @@ calculateFPS:		;@ Fps output, r0-r3=used.
 
 	bx lr
 ;@----------------------------------------------------------------------------
+setTargetFPS:				;@ Write target FPS, r0=in fps, r0-r3=used.
+	.type setTargetFPS STT_FUNC
+;@----------------------------------------------------------------------------
+	strb r0,fpsTarget
+	mov r1,#10
+	swi 0x060000				;@ Division r0/r1, r0=result, r1=remainder.
+	add r0,r0,#0x30
+	strb r0,fpsText+8
+	add r1,r1,#0x30
+	strb r1,fpsText+9
+	bx lr
+;@----------------------------------------------------------------------------
 fpsValue:	.long 0
-fpsText:	.string "FPS:   "
+fpsText:	.string "FPS:   /60"
 fpsCheck:	.byte 0
-	.align 2
+fpsTarget:	.byte 60
+	.align 3
 
 ;@----------------------------------------------------------------------------
 convertPalette:			;@ r0 = destination, r1 = source, r2 = length. r3 = gamma (0 -> 4), r12 modified.

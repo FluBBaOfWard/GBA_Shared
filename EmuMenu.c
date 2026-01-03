@@ -31,6 +31,7 @@ static char *const flickTxt[] = {"No Flicker", "Flicker"};
 
 EWRAM_BSS u8 autoA = 0;			// 0=off, 1=on, 2=R
 EWRAM_BSS u8 autoB = 0;
+EWRAM_BSS u8 gGammaValue = 0;
 EWRAM_BSS u8 ewram = 0;
 
 EWRAM_BSS bool gDebugSet = false;

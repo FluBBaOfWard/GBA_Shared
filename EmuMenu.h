@@ -49,6 +49,8 @@ extern const char *const brighTxt[];
 extern u8 autoA;
 /// Autofire for button B
 extern u8 autoB;
+/// Gamma value for display
+extern u8 gGammaValue;
 extern u8 ewram;
 
 /// Should we output debug text?

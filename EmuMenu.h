@@ -68,8 +68,12 @@ extern int emuSettings;
 extern int sleepTime;
 /// This is the current row in the menu.
 extern int selected;
+/// Horizontal position of menu
+extern int menuHPos;
+
 
 void guiRunLoop(void);
+void skipScroll(void);
 int getInput(void);
 int getMenuInput(int menuItems);
 int getMenuPos(int keyHit, int sel, int menuItems);
@@ -104,8 +108,6 @@ void closeMenu(void);
 void setDarknessGs(int dark);
 void setBrightnessAll(int light);
 void fadeToWhite();
-void scrollL(int offset, int fade);
-void scrollR(int offset);
 void gbaSleep(void);
 void showSplash(const u16 *splash);
 void exitEmulator(void);

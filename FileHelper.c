@@ -121,20 +121,19 @@ void drawSpinner() {
 //---------------------------------------------------------------------------------
 const RomHeader *browseForFile(void) {
 	static int pos = 0;
-	int oldPos = -1;
 	const RomHeader *rh;
-	int pressed = 0;
 
 	if (romCount > 0) {
-		cls(0);
+		skipScroll();
 		if (pos >= romCount) {
-			pos = romCount-1;
+			pos = 0;
 		}
+		int oldPos = -1;
 		while (1) {
 			waitVBlank();
-			pressed = getInput();
+			int pressed = getInput();
 			pos = getMenuPos(pressed, pos, romCount);
-			if (pressed & (KEY_A)) {
+			if (pressed & KEY_A) {
 				rh = findRom(pos);
 				strlcpy(currentFilename, rh->name, sizeof(currentFilename));
 				return rh;
@@ -144,7 +143,7 @@ const RomHeader *browseForFile(void) {
 				drawFileList(pos, romCount);
 				outputLogToScreen();
 			}
-			if (pressed & (KEY_B)) {
+			if (pressed & KEY_B) {
 				break;
 			}
 			updateInfoLog();

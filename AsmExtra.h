@@ -41,9 +41,9 @@ int bin2BCD(int number);
 int getRandomNumber(int maxValue);
 
 /**
- * Guaranteed to only copy bytes, usefull for copying mem to GBA SRAM.
- * @param dst: The destination, this should probably be in the 0x0E000000 range.
- * @param src: The source, can be anything.
+ * Guaranteed to only copy bytes, usefull for copying mem from/to GBA SRAM (the 0x0E000000 range).
+ * @param dst: The destination.
+ * @param src: The source.
  * @param count: Number of bytes to copy.
  */
 void bytecopy_(u8 *dst, const u8 *src, int count);

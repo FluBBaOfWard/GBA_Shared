@@ -23,7 +23,7 @@ VISOLY_START:
 
 	mov		r0, #0
 	ldr		r1,=0x3007ffa	;@ Must be 0 before swi 0x00 is run, otherwise it tries to start from 0x02000000.
-	strh		r0,[r1]
+	strh	r0,[r1]
 
 	mov		r0, #8		;@ VRAM clear
 	swi		0x010000
@@ -85,7 +85,7 @@ do_writes:
 	ldmfd sp!,{pc}
 
 rom_addresses:
-	@ez flash
+	;@ EZ Flash
 	.word 0x9FE0000
 	.word 0x8000000
 	.word 0x8020000
@@ -93,11 +93,11 @@ rom_addresses:
 	.word 0x9880000
 	.word 0x9FC0000
 
-	@SC
+	;@ SC
 	.word 4
 	.word 0x09FFFFFE
 
-	@Visoly
+	;@ Visoly
 	.word   (0x00987654 * 2) + 0x08000000
 	.word   1001
 	.word   (0x00012345 * 2) + 0x08000000
@@ -110,7 +110,7 @@ rom_addresses:
 	.word   (0x00987654 * 2) + 0x08000000
 	.word	0x096B592E
 
-	@M3  (reads)
+	;@ M3  (reads)
 	.word 0x08E00002
 	.word 0x0800000E
 	.word 0x08801FFC
@@ -126,7 +126,7 @@ rom_addresses:
 	.word 0x08000188
 	.word 0x08000188
 
-	@G6  (reads)
+	;@ G6  (reads)
 	.word 0x09000000
 	.word 0x09FFFFE0
 	.word 3
@@ -140,7 +140,7 @@ rom_addresses:
 	.word 0x09FFFFE8	
 
 data_values:
-	@ez_flash
+	;@ EZ Flash
 	.hword 0xD200
 	.hword 0x1500
 	.hword 0xD200
@@ -148,13 +148,13 @@ data_values:
 	.hword 0x8000
 	.hword 0x1500
 
-	@SC	
+	;@ SC
 	.hword 0xA55A
 	.hword 0xA55A
 	.hword 0
 	.hword 0
 
-	@visoly
+	;@ Visoly
 	.hword 0x5354
 	.hword 500
 	.hword 0x1234

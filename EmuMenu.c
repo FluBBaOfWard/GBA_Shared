@@ -47,10 +47,12 @@ EWRAM_BSS static int selectedMenu = 0;
 EWRAM_BSS static int selectedMain = 0;
 EWRAM_DATA static int lastMainMenu = 1;
 EWRAM_BSS static int menuItemRow = 0;
-// How deep we are in the menu tree
+/// How deep we are in the menu tree
 EWRAM_BSS static int menuLevel = 0;
 EWRAM_BSS static char menuPath[MENU_MAX_DEPTH];
 EWRAM_BSS static char menuPositions[MENU_MAX_DEPTH];
+EWRAM_BSS static int scrollDirection = 0;
+EWRAM_BSS int menuHPos = 0;
 
 EWRAM_BSS static int logBufPtr = 0;
 EWRAM_BSS static int logBufPtrOld = 0;
@@ -64,6 +66,28 @@ void guiRunLoop(void) {
 	}
 	else {
 		subUI();
+	}
+	if (scrollDirection != 0) {
+		menuHPos += scrollDirection;
+		if ((menuHPos & 0xFF) == 0) {
+			scrollDirection = 0;
+		}
+		if (menuHPos <= 0x100) {
+			setDarknessGs((menuHPos >> 5) & 0x0F);
+		}
+		REG_BG3HOFS = menuHPos;
+	}
+}
+
+/// Used by browseForFile.
+void skipScroll() {
+	if (scrollDirection != 0) {
+		do {
+			menuHPos += scrollDirection;
+		}
+		while ((menuHPos & 0xFF) != 0);
+		scrollDirection = 0;
+		REG_BG3HOFS = menuHPos;
 	}
 }
 
@@ -150,6 +174,7 @@ void setSelectedMain(int menuNr) {
 }
 
 void enterMenu(int menuNr) {
+	int oldLevel = menuLevel;
 	menuPositions[menuLevel] = selected;
 	menuLevel++;
 	if (menuLevel >= MENU_MAX_DEPTH) {
@@ -163,23 +188,31 @@ void enterMenu(int menuNr) {
 		selected = 0;
 	}
 	setSelectedMenu(menuNr);
+	if (oldLevel != menuLevel) {
+		menuHPos = (menuHPos & 0xF800) | (oldLevel & 0x7) << 8;
+		scrollDirection = 0x20;
+	}
 }
 
 void backOutOfMenu() {
+	int oldLevel = menuLevel;
 	menuPositions[menuLevel] = selected;
 	menuLevel--;
-	if ( menuLevel < 0) {
+	if (menuLevel < 0) {
 		menuLevel = 0;
 	}
 	selected = menuPositions[menuLevel];
 	setSelectedMenu(menuPath[menuLevel]);
+	if (oldLevel != menuLevel) {
+		menuHPos = (menuHPos & 0xF800) | (oldLevel & 0x7) << 8;
+		scrollDirection = -0x20;
+	}
 }
 
 void openMenu() {
 	enterGUI();
 	setSelectedMain(lastMainMenu);
 	setupMenuPalette();
-	setDarknessGs(8);
 	if (emuSettings & AUTOPAUSE_EMULATION) {	// Should we pause when menu is open?
 		pauseEmulation = true;
 		setMuteSoundGUI();
@@ -190,8 +223,17 @@ void openMenu() {
 }
 
 void closeMenu() {
-	menuLevel = 0;
+	int mPos = menuPositions[1];
+	if (menuLevel > 1) {
+		menuPositions[menuLevel] = selected;
+		if ((menuLevel &= 1) == 0) {
+			menuLevel = 1;
+			cls(0);
+			redrawUI();
+		}
+	}
 	backOutOfMenu();
+	menuPositions[1] = mPos;
 }
 
 bool isMenuOpen() {
@@ -208,9 +250,8 @@ void exitUI() {
 		lastMainMenu = 1;
 	}
 
-	setDarknessGs(0);
-	paletteTxAll();
 	exitGUI();
+	paletteTxAll();
 	pauseEmulation = false;
 	setMuteSoundGUI();
 }
@@ -237,18 +278,18 @@ void nullUI() {
 void subUI() {
 	const int key = getMenuInput(menus[selectedMenu]->itemCount);
 
-	if (key & (KEY_A)) {
+	if (key & KEY_A) {
 		menus[selectedMenu]->items[selected].fn();
 	}
-	if (key & (KEY_B)) {
+	if (key & KEY_B) {
 		backOutOfMenu();
 	}
-/*	if (key & (KEY_L)) {
+/*	if (key & KEY_L) {
 		if (selectedMain > 0) {
 			setSelectedMenu(selectedMain-1);
 		}
 	}
-	if (key&(KEY_R)) {
+	if (key & KEY_R) {
 		if (selectedMain < 3) {
 			setSelectedMenu(selectedMain+1);
 		}
@@ -260,9 +301,7 @@ void subUI() {
 }
 
 int getMenuInput(int itemCount) {
-	int keyHit;
-
-	keyHit = getInput();
+	int keyHit = getInput();
 	selected = getMenuPos(keyHit, selected, itemCount);
 	return keyHit;
 }
@@ -319,8 +358,8 @@ int drawFileList(int sel, int itemCount) {
 	}
 
 	for (i = 0; i < (SCREEN_HEIGHT / 8 - 1); i++) {
-		buf = romNameFromPos( firstItem + i);
-		if ( *buf == '~' ) {
+		buf = romNameFromPos(firstItem + i);
+		if (*buf == '~') {
 			buf++;
 		}
 		selectedFile = (i == (sel-firstItem)?1:0);
@@ -332,7 +371,8 @@ int drawFileList(int sel, int itemCount) {
 void cls(int chrMap) {
 	int i = 0;
 	int len = 0x200;
-	u32 *scr = (u32*)menuMap;
+	int page = (menuLevel & 1) ? 0x400 :0x0;
+	u32 *scr = (u32*)(menuMap + page);
 	if (chrMap >= 2) {
 		len = 0x400;
 	}
@@ -342,7 +382,6 @@ void cls(int chrMap) {
 	for (;i<len;i++) {				// 512x256
 		scr[i] = 0x01200120;
 	}
-	REG_BG3VOFS = 0;
 }
 
 void drawTextXY(const char *str, int col, int row) {
@@ -377,10 +416,11 @@ void drawSubItem(const char *str1, const char *str2) {
 }
 
 void drawItemXY(const char *str, int col, int row, int hiLite) {
-	u16 *here = menuMap+row*32;
+	int page = (menuLevel & 1) ? 0x400 :0x0;
+	u16 *here = menuMap+page+row*32;
 	int i = col+1;
 
-	*here = hiLite?0xF12a:0xF120;
+	*here = hiLite?0xF12A:0xF120;
 	hiLite = 0xF100-(hiLite<<12);
 	while (*str >= ' ') {
 		here[i] = hiLite|*str++;
@@ -518,27 +558,10 @@ void fadeToWhite() {
 	}
 }
 
-void scrollL(int offset, int fade) {
-	int i;
-	for (i=0;i<9;i++) {
-		if (fade) setDarknessGs(8+i);	// Darken screen
-		REG_BG3HOFS = i*32 + offset;	// Move screen left
-		waitVBlank();
-	}
-}
-
-void scrollR(int offset) {
-	int i;
-	for (i=8;i>=0;i--) {
-		waitVBlank();
-		REG_BG3HOFS = i*32 + offset;	// Move screen right
-	}
-}
-
 void gbaSleep() {
 	fadeToWhite();
 	suspend();
-	setDarknessGs(7);				// Restore screen
+	setDarknessGs(8);				// Restore screen
 	while ((~REG_KEYINPUT) & 0x3ff) {
 		waitVBlank();				// (polling REG_P1 too fast seems to cause problems)
 	}

@@ -546,6 +546,11 @@ void setBrightnessAll(int light) {
 	REG_BLDY = light;
 }
 
+void setDarknessAll(int dark) {
+	REG_BLDCNT = 0x00ff;			// Darkness increase all
+	REG_BLDY = dark;
+}
+
 void fadeToWhite() {
 	int i;
 	for (i=7;i>=0;i--) {
@@ -586,7 +591,12 @@ void showSplash(const u16 *splash) {
 //				gbaversion = 3;
 			}
 		}
+		for (i=0;i<=16;i++) {	// Fade to black
+			setDarknessAll(i);
+			waitVBlank();
+		}
 		memset((u16*)VRAM, 0, 240*160*2);
+		setDarknessAll(0);
 	}
 }
 

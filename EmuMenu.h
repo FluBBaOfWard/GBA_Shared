@@ -106,6 +106,7 @@ void backOutOfMenu(void);
 void closeMenu(void);
 
 void setDarknessGs(int dark);
+void setDarknessAll(int dark);
 void setBrightnessAll(int light);
 void fadeToWhite();
 void gbaSleep(void);

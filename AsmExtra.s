@@ -400,6 +400,7 @@ debugOutput_asm:			;@ Input = r1. ptr to str.
 
 ;@----------------------------------------------------------------------------
 bytecopy_:					;@ void bytecopy(u8 *dst, u8 *src, int count)
+	.type   bytecopy_ STT_FUNC
 ;@----------------------------------------------------------------------------
 	subs r2,r2,#1
 	ldrbpl r3,[r1,r2]

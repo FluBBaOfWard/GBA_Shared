@@ -9,6 +9,12 @@ extern "C" {
 
 #define FILENAME_MAX_LENGTH (32)
 
+typedef struct {
+	u8 *romPtr;
+	u32 size;
+	char name[32];
+} PogoFile;
+
 extern int romsAvailable;
 
 extern char currentFilename[FILENAME_MAX_LENGTH];
@@ -51,6 +57,8 @@ const char *romNameFromPos(int pos);
  * @return A pointer to the splash screen or null.
  */
 const u16 *getSplashScreen(u32 inHeaderId);
+
+const PogoFile *getPogoFile(void);
 
 #ifdef __cplusplus
 } // extern "C"

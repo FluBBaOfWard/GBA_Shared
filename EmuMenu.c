@@ -531,6 +531,7 @@ void debugOutput(const char *str) {
 
 void exitEmulator() {
 	if (enableExit) {
+		setDarknessGs(0);			// Restore blending
 		resetFlashCart();
 	}
 }
@@ -566,7 +567,7 @@ void fadeToWhite() {
 void gbaSleep() {
 	fadeToWhite();
 	suspend();
-	setDarknessGs(8);				// Restore screen
+	setDarknessGs(8);				// Restore menu blending
 	while ((~REG_KEYINPUT) & 0x3ff) {
 		waitVBlank();				// (polling REG_P1 too fast seems to cause problems)
 	}

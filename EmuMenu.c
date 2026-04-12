@@ -567,7 +567,12 @@ void fadeToWhite() {
 void gbaSleep() {
 	fadeToWhite();
 	suspend();
-	setDarknessGs(8);				// Restore menu blending
+	if (isMenuOpen()) {
+		setDarknessGs(8);			// Restore menu blending
+	}
+	else {
+		setBrightnessAll(0);		// Set normal
+	}
 	while ((~REG_KEYINPUT) & 0x3ff) {
 		waitVBlank();				// (polling REG_P1 too fast seems to cause problems)
 	}

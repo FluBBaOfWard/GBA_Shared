@@ -215,7 +215,7 @@ void openMenu() {
 	setupMenuPalette();
 	if (emuSettings & AUTOPAUSE_EMULATION) {	// Should we pause when menu is open?
 		pauseEmulation = true;
-		setMuteSoundGUI();
+		soundSetMuteGUI();
 	}
 	if (emuSettings & AUTOSAVE_NVRAM) {
 		saveNVRAM();
@@ -253,7 +253,7 @@ void exitUI() {
 	exitGUI();
 	paletteTxAll();
 	pauseEmulation = false;
-	setMuteSoundGUI();
+	soundSetMuteGUI();
 }
 
 /// This is during emulation.
@@ -613,7 +613,7 @@ void autoPauseGameSet() {
 	emuSettings ^= AUTOPAUSE_EMULATION;
 	settingsChanged = true;
 	pauseEmulation = (emuSettings & AUTOPAUSE_EMULATION);
-	setMuteSoundGUI();
+	soundSetMuteGUI();
 }
 
 const char *getAutoPauseGameText() {

@@ -68,6 +68,8 @@ extern int emuSettings;
 extern int sleepTime;
 /// This is the current row in the menu.
 extern int selected;
+/// This is the current menu, 0 means menu is closed.
+extern int selectedMenu;
 /// Horizontal position of menu
 extern int menuHPos;
 
@@ -104,6 +106,7 @@ void enterMenu(int menuNr);
 void openMenu(void);
 void backOutOfMenu(void);
 void closeMenu(void);
+bool isMenuOpen(void);
 
 void setDarknessGs(int dark);
 void setDarknessAll(int dark);

@@ -43,7 +43,7 @@ EWRAM_BSS int emuSettings = 0;
 EWRAM_DATA int sleepTime = 60*60*5;
 EWRAM_BSS int selected = 0;
 
-EWRAM_BSS static int selectedMenu = 0;
+EWRAM_BSS int selectedMenu = 0;
 EWRAM_BSS static int selectedMain = 0;
 EWRAM_DATA static int lastMainMenu = 1;
 EWRAM_BSS static int menuItemRow = 0;

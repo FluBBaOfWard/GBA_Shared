@@ -9,6 +9,8 @@ extern "C" {
 
 #define MENU_M(name,draw,list) {name, draw, ARRSIZE(list), list}
 
+#define ACT_OPEN_MENU BIT(30)  // Key to open menu
+
 #ifndef EWRAM_BSS
 #define EWRAM_BSS	__attribute__((section(".sbss")))
 #endif

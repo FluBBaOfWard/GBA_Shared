@@ -76,6 +76,7 @@ void guiRunLoop(void) {
 			setDarknessGs((menuHPos >> 5) & 0x0F);
 		}
 		REG_BG3HOFS = menuHPos;
+		EMUinput &= ~KEY_B;
 	}
 }
 
@@ -259,7 +260,7 @@ void exitUI() {
 /// This is during emulation.
 void nullUI() {
 	int key = getInput();
-	if ((EMUinput & (KEY_L|KEY_R)) == (KEY_L|KEY_R)) {
+	if (EMUinput & ACT_OPEN_MENU) {
 		openMenu();
 		return;
 	}
@@ -308,13 +309,11 @@ int getMenuInput(int itemCount) {
 
 //---------------------------------------------------------------------------------
 int getInput() {
-	int dpad;
+	EMUinput = convertInput(keysHeld());
+
 	int keyHit = keysDown();	// Buttons pressed this loop
-
-	EMUinput = keysHeld();
-
-	dpad = keysDownRepeat() & (KEY_UP+KEY_DOWN+KEY_LEFT+KEY_RIGHT);
-	return dpad|(keyHit & (KEY_A+KEY_B+KEY_START+KEY_L+KEY_R));
+	int dPad = keysDownRepeat() & (KEY_UP+KEY_DOWN+KEY_LEFT+KEY_RIGHT);
+	return dPad|(keyHit & (KEY_A+KEY_B+KEY_START+KEY_L+KEY_R));
 }
 
 //---------------------------------------------------------------------------------
@@ -744,7 +743,7 @@ const char *getAutoBText() {
 void speedSet() {
 	int i = (emuSettings+0x40) & EMUSPEED_MASK;
 	emuSettings = (emuSettings & ~EMUSPEED_MASK) | i;
-	setEmuSpeed(i>>5);
+	setEmuSpeed(i>>6);
 }
 
 const char *getSpeedText() {

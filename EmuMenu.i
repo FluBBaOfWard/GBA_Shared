@@ -11,5 +11,12 @@
 	.equ KEY_R,         (1<<8)  ;@ Right shoulder button.
 	.equ KEY_L,         (1<<9)  ;@ Left shoulder button.
 
-	.equ KEY_OPEN_MENU, 1<<30   ;@ Key to open menu
+	.equ ACT_COIN,      1<<23   ;@ Action to insert coin
+	.equ ACT_POWER,     1<<24   ;@ Action to press power button
+	.equ ACT_SCRL_UP,   1<<25   ;@ Action to scroll unscaled screen up
+	.equ ACT_SCRL_DOWN, 1<<26   ;@ Action to scroll unscaled screen down
+	.equ ACT_FAST_FORW, 1<<27   ;@ Action to fast forward
+	.equ ACT_LOAD_STAT, 1<<28   ;@ Action to load state
+	.equ ACT_SAVE_STAT, 1<<29   ;@ Action to save state
+	.equ ACT_OPEN_MENU, 1<<30   ;@ Action to open menu
 ;@----------------------------------------------------------------------------

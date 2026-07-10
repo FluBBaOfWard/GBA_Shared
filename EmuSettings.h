@@ -9,9 +9,9 @@ extern "C" {
 #define AUTOPAUSE_EMULATION	(1<<0)
 #define AUTOSAVE_SETTINGS	(1<<1)
 #define AUTOLOAD_STATE		(1<<2)
-#define SHOW_UI_CLOCK		(1<<3)
-#define AUTOLOAD_NVRAM		(1<<4)
-#define AUTOSAVE_NVRAM		(1<<5)
+#define AUTOLOAD_NVRAM		(1<<3)
+#define AUTOSAVE_NVRAM		(1<<4)
+#define SHOW_UI_CLOCK		(1<<5)
 #define EMUSPEED_NORMAL		(0<<6)
 #define EMUSPEED_2X			(1<<6)
 #define EMUSPEED_MAX		(2<<6)
@@ -25,7 +25,7 @@ extern "C" {
 #define SOUND_ENABLE		(1<<10)
 
 // Misc settings that are not saved.
-#define UNSCALED		0	//display types
+#define UNSCALED		0	// Display types
 #define SCALED			1
 
 #ifdef __cplusplus

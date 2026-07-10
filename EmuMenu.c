@@ -643,7 +643,7 @@ void autoNVRAMSet() {
 }
 
 const char *getAutoNVRAMText() {
-	return autoTxt[(emuSettings & AUTOLOAD_NVRAM)>>10];
+	return autoTxt[(emuSettings & AUTOLOAD_NVRAM)>>3];
 }
 
 void saveNVRAMSet() {
@@ -652,7 +652,7 @@ void saveNVRAMSet() {
 }
 
 const char *getSaveNVRAMText() {
-	return autoTxt[(emuSettings & AUTOSAVE_NVRAM)>>11];
+	return autoTxt[(emuSettings & AUTOSAVE_NVRAM)>>4];
 }
 
 void soundEnableSet() {

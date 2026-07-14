@@ -15,6 +15,8 @@ EWRAM_BSS static const RomHeader *romData;
 EWRAM_BSS static const RomHeader *romGames;
 /** Total number of roms found */
 EWRAM_BSS int romCount = 0;
+/** Current selected ROM number */
+EWRAM_BSS u32 romNum = 0;
 
 EWRAM_BSS PogoFile pogoFile;
 
@@ -32,8 +34,8 @@ EWRAM_BSS static char spinnerCount = 0;
 const RomHeader *findRomHeader(const RomHeader *base, u32 headerId)
 {
 	// Look up to 256 bytes later for a ROM header
-	const u32 *p=(u32*)base;
-	
+	const u32 *p=(u32 *)base;
+
 	int i;
 	for (i=0; i<64; i++) {
 		if (*p == headerId) {
@@ -116,20 +118,20 @@ const char *romNameFromPos(int pos) {
 }
 
 const PogoFile *getPogoFile() {
-	u32 temp = (u32)(*(u8**)0x0203FBFC);
+	u32 temp = (u32)(*(u8 **)0x0203FBFC);
 	char pogoshell = ((temp & 0xFE000000) == 0x08000000)?1:0;
 
 	if (pogoshell) {
-		u32 *magptr = (u32 *)0x08000000;
-		u32 *fileptr;
+		u32 *magPtr = (u32 *)0x08000000;
+		u32 *filePtr;
 		char *d;
 		char *s = (char *)0x0203fc08;
 
-		while (*magptr != 0xfab0babe && magptr < (u32 *)0x0a000000) {
-			magptr += 0x8000/4;						// Find the filesys root
+		while (*magPtr != 0xfab0babe && magPtr < (u32 *)0x0a000000) {
+			magPtr += 0x8000/4;						// Find the filesys root
 		}
-		magptr += 2;
-		fileptr = magptr;
+		magPtr += 2;
+		filePtr = magPtr;
 
 		do s++; while (*s);							// Command name (emu.bin)
 		s++;
@@ -141,17 +143,17 @@ const PogoFile *getPogoFile() {
 			if (!*s)
 				break;
 			*s = 0;									// Terminate directory name.
-			while (strcmp((char *)magptr, d)) {		// Find directory
-				magptr += 10;
+			while (strcmp((char *)magPtr, d)) {		// Find directory
+				magPtr += 10;
 			}
-			magptr = (u32 *)((u8 *)fileptr + magptr[9]);
+			magPtr = (u32 *)((u8 *)filePtr + magPtr[9]);
 		}
-		while (strcmp((char *)magptr, d)) {			// Find file
-			magptr += 10;
+		while (strcmp((char *)magPtr, d)) {			// Find file
+			magPtr += 10;
 		}
-		pogoFile.size = magptr[8];					// File size
+		pogoFile.size = magPtr[8];					// File size
 
-		pogoFile.romPtr = (*(u8**)0x0203FBFC);
+		pogoFile.romPtr = (*(u8 **)0x0203FBFC);
 		memcpy(&pogoFile.name, d, 32);
 		return &pogoFile;
 	}
@@ -159,33 +161,33 @@ const PogoFile *getPogoFile() {
 }
 
 void drawSpinner() {
-	drawTextXY(spinner[spinnerCount&3], 15, 10);
+	drawTextXY(spinner[spinnerCount & 3], 15, 10);
 	spinnerCount++;
 }
 
 //---------------------------------------------------------------------------------
 const RomHeader *browseForFile(void) {
-	static int pos = 0;
 	const RomHeader *rh;
 
 	if (romCount > 0) {
 		skipScroll();
-		if (pos >= romCount) {
-			pos = 0;
+		if (romNum >= romCount) {
+			romNum = 0;
 		}
+		selected = romNum;
 		int oldPos = -1;
 		while (1) {
 			waitVBlank();
-			int pressed = getInput();
-			pos = getMenuPos(pressed, pos, romCount);
+			int pressed = getMenuInput(romCount);
 			if (pressed & KEY_A) {
-				rh = findRom(pos);
+				rh = findRom(selected);
 				strlcpy(currentFilename, rh->name, sizeof(currentFilename));
 				return rh;
 			}
-			if (oldPos != pos) {
-				oldPos = pos;
-				drawFileList(pos, romCount);
+			if (oldPos != selected) {
+				oldPos = selected;
+				romNum = selected;
+				drawFileList(selected, romCount);
 				outputLogToScreen();
 			}
 			if (pressed & KEY_B) {

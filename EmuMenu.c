@@ -313,7 +313,7 @@ int getInput() {
 
 	int keyHit = keysDown();	// Buttons pressed this loop
 	int dPad = keysDownRepeat() & (KEY_UP+KEY_DOWN+KEY_LEFT+KEY_RIGHT);
-	return dPad|(keyHit & (KEY_A+KEY_B+KEY_START+KEY_L+KEY_R));
+	return dPad|(keyHit & (KEY_A+KEY_B+KEY_START+KEY_SELECT+KEY_L+KEY_R));
 }
 
 //---------------------------------------------------------------------------------
@@ -345,10 +345,9 @@ void redrawUI() {
 }
 
 int drawFileList(int sel, int itemCount) {
-	int i, firstItem, selectedFile;
-	const char *buf;
+	int i;
 
-	firstItem = sel-9;
+	int firstItem = sel-9;
 	if (sel > (itemCount-11)) {
 		firstItem = itemCount-19;
 	}
@@ -357,11 +356,11 @@ int drawFileList(int sel, int itemCount) {
 	}
 
 	for (i = 0; i < (SCREEN_HEIGHT / 8 - 1); i++) {
-		buf = romNameFromPos(firstItem + i);
+		const char *buf = romNameFromPos(firstItem + i);
 		if (*buf == '~') {
 			buf++;
 		}
-		selectedFile = (i == (sel-firstItem)?1:0);
+		int selectedFile = (i == (sel-firstItem)?1:0);
 		drawItem(buf, i+1, selectedFile);
 	}
 	return (sel-firstItem);
@@ -581,7 +580,7 @@ void showSplash(const u16 *splash) {
 	if (splash != NULL) {
 		int i;
 		SetMode(LCDC_OFF);		// Screen OFF
-		memcpy((u16*)VRAM, splash, 240*160*2);
+		memcpy((u16 *)VRAM, splash, 240*160*2);
 		waitVBlank();
 		REG_BG2CNT = 0x0000;
 		SetMode(MODE_3 | BG2_ON);
@@ -592,15 +591,15 @@ void showSplash(const u16 *splash) {
 		for (i=0;i<150;i++) {	// Wait 2.5 seconds
 			waitVBlank();
 			if (REG_KEYINPUT == 0x030f){
-//				gameboyplayer = 1;
-//				gbaversion = 3;
+//				gameboyPlayer = 1;
+//				gbaVersion = 3;
 			}
 		}
 		for (i=0;i<=16;i++) {	// Fade to black
 			setDarknessAll(i);
 			waitVBlank();
 		}
-		memset((u16*)VRAM, 0, 240*160*2);
+		memset((u16 *)VRAM, 0, 240*160*2);
 		setDarknessAll(0);
 	}
 }

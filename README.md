@@ -10,6 +10,7 @@ Shared code for all my emulators on the Nintendo GBA
 * <https://github.com/FluBBaOfWard/LodjurGBA>
 * <https://github.com/FluBBaOfWard/NGPGBA>
 * <https://github.com/FluBBaOfWard/RenegadeGBA>
+* <https://github.com/FluBBaOfWard/S8GBA>
 * <https://github.com/FluBBaOfWard/SonSonGBA>
 * <https://github.com/FluBBaOfWard/SwanGBA>
 * <https://github.com/FluBBaOfWard/WasabiGBA>

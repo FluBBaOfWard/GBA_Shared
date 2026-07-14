@@ -1,3 +1,6 @@
+#if !__ASSEMBLER__
+	#error This header file is only for use in assembly files!
+#endif
 
 ;@----------------------------------------------------------------------------
 	.equ KEY_A,         (1<<0)  ;@ Keypad A button.

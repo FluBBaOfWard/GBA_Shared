@@ -5,21 +5,23 @@
 	.global   VISOLY_START
 	.global   VISOLY_END
 
+;@----------------------------------------------------------------------------
 VISOLY_START:
 	.type   VISOLY_START STT_FUNC
+;@----------------------------------------------------------------------------
 	;@ Disable interrupts and DMA before calling this
-	adr r2,rom_addresses	;@ The addresses to write to/read from (or special numbers indicating a run)
-	adr r3,data_values		;@ The 16-bit data values to write (or special numbers indicating a run)
+	adr r2,romAddresses		;@ The addresses to write to/read from (or special numbers indicating a run)
+	adr r3,dataValues		;@ The 16-bit data values to write (or special numbers indicating a run)
 	mov r4,#0	;@ r4 = number of same address in a run (address values smaller than 65536 indicate this)
 	mov r5,#0	;@ r5 = number of same 16-bit values to write (data values smaller than 512 indicate this)
 
-	;@ reset EZ FLASH, SC, Visoly
+	;@ Reset EZ FLASH, SC, Visoly
 	ldr r1,=6+4+8+1500	;@ 6 writes for EZ, 4 writes for supercard, 1508 writes for Visoly, total is 1518
-	bl do_writes
+	bl doWrites
 
-	;@ reset M3, G6
+	;@ Reset M3, G6
 	mov r1,#14+14		;@ 14 reads for M3, 14 reads for G6
-	bl do_reads
+	bl doReads
 
 	mov		r0, #0
 	ldr		r1,=0x3007ffa	;@ Must be 0 before swi 0x00 is run, otherwise it tries to start from 0x02000000.
@@ -27,11 +29,11 @@ VISOLY_START:
 
 	mov		r0, #8		;@ VRAM clear
 	swi		0x010000
-	@Reboot
+	;@ Reboot
 	swi		0x000000
 
 
-get_word:
+getWord:
 	movs r4,r4			;@ Any left in the run?  jump ahead
 	bne 1f
 	ldr r12,[r2],#4		;@ Read address
@@ -47,7 +49,7 @@ get_word:
 	sub r4,r4,#1		;@ Decrease remaining count
 	bx lr
 
-get_hword:
+getHWord:
 	movs r5,r5			;@ Any left in the run?  jump ahead
 	bne 1f
 	ldrh r0,[r3],#2		;@ Read data
@@ -63,28 +65,28 @@ get_hword:
 	sub r5,r5,#1		;@ Decrease remaining count
 	bx lr
 
-do_reads:
+doReads:
 	stmfd sp!,{lr}
 0:
-	bl get_word			;@ Get the address to read from
+	bl getWord			;@ Get the address to read from
 	ldrh r0,[r12]		;@ Perform the read
 	subs r1,r1,#1		;@ Decrease remaining
 	bne 0b				;@ Repeat for the next address
 
 	ldmfd sp!,{pc}
 
-do_writes:
+doWrites:
 	stmfd sp!,{lr}
 0:
-	bl get_word			;@ Get the address to write to
-	bl get_hword		;@ Get the value to write
+	bl getWord			;@ Get the address to write to
+	bl getHWord			;@ Get the value to write
 	strh r0,[r12]		;@ Perform the write
 	subs r1,r1,#1		;@ Decrease remaining
 	bne 0b				;@ Repeat for the next address and value
 
 	ldmfd sp!,{pc}
 
-rom_addresses:
+romAddresses:
 	;@ EZ Flash
 	.word 0x9FE0000
 	.word 0x8000000
@@ -139,7 +141,7 @@ rom_addresses:
 	.word 0x09FFFFF0
 	.word 0x09FFFFE8	
 
-data_values:
+dataValues:
 	;@ EZ Flash
 	.hword 0xD200
 	.hword 0x1500
@@ -173,4 +175,4 @@ data_values:
 	.pool
 VISOLY_END:
 	.end
-#endif // #ifdef __arm__
+#endif // __arm__

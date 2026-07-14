@@ -12,8 +12,10 @@ extern "C" {
 typedef struct {
 	u8 *romPtr;
 	u32 size;
-	char name[32];
+	char name[FILENAME_MAX_LENGTH];
 } PogoFile;
+
+extern u32 romNum;
 
 extern int romsAvailable;
 

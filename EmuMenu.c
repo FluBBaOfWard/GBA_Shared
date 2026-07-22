@@ -520,6 +520,11 @@ void infoOutput(const char *str) {
 	strlcpy(logBuffer[logBufPtr&7], str, 32);
 }
 
+void infoOutputForce(const char *str) {
+	infoOutput(str);
+	updateInfoLog();
+}
+
 void debugOutput(const char *str) {
 	if (gDebugSet) {
 		infoOutput(str);

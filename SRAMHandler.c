@@ -11,8 +11,11 @@
 #include "../Cart.h"
 #include "../FileHandling.h"
 
+const int GBA_SRAM_SIZE = 0x10000;
+const int BUFFER2_SIZE = 0x10000;
+
 u8 * const BUFFER1 = SCRATCH_BUFF;
-u8 * const BUFFER2 = &SCRATCH_BUFF[0x10000];
+u8 * const BUFFER2 = &SCRATCH_BUFF[GBA_SRAM_SIZE];
 
 int totalStateSize;			// How much SRAM is used
 
@@ -35,7 +38,7 @@ void getSram() {		// Copy GBA SRAM to BUFFER1
 
 	p = (u32 *)buff1;
 	if (*p != STATEID) {		// If sram hasn't been copied already
-		bytecopy_(buff1, sram, 0x10000); // Copy everything to BUFFER1
+		bytecopy_(buff1, sram, GBA_SRAM_SIZE); // Copy everything to BUFFER1
 		if (*p != STATEID) {	// Valid savestate data?
 			*p = STATEID;		// Nope. Initialize
 			*(p+1) = 0;
@@ -56,7 +59,7 @@ u32 checksum(const u8 *p) {
 
 void writeError() {
 	infoOutput("Write error! Memory full.");
-	infoOutput("Delete some saves.");
+	infoOutputForce("Delete some saves.");
 }
 
 // (BUFFER1=copy of GBA SRAM, BUFFER2=new data)
@@ -89,7 +92,7 @@ int updateStates(int index, int erase, int type) {
 	if (!erase) {
 		i = newData->size;
 		total += i;
-		if (total > 0x10000) // **OUT OF MEMORY**
+		if (total > GBA_SRAM_SIZE) // **OUT OF MEMORY**
 			return 0;
 		src = (u8 *)newData + newData->size;
 		// Copy trailing data to 2nd buffer
@@ -117,7 +120,7 @@ int updateStates(int index, int erase, int type) {
 	// Copy everything to GBA sram
 
 	totalStateSize = total;
-	while (total < 0x10000)
+	while (total < GBA_SRAM_SIZE)
 	{
 		*dst++ = 0;
 		total++;
@@ -239,7 +242,7 @@ StateHeader *drawStates(int menuType, int *menuItems) {
 void compressState(u32 size, u16 type, const u8 *src) {
 
 	uint8_t buf[513];
-	u32 compressedSize = ECL_NanoLZ_Compress_mid2min(ECL_NANOLZ_SCHEME1, src, size, BUFFER2+sizeof(StateHeader), 0x10000, buf);
+	u32 compressedSize = ECL_NanoLZ_Compress_mid2min(ECL_NANOLZ_SCHEME1, src, size, BUFFER2+sizeof(StateHeader), BUFFER2_SIZE, buf);
 
 	// Setup header:
 	StateHeader *sh = (StateHeader *)BUFFER2;
@@ -284,7 +287,7 @@ int findState(u32 checksum, int type, StateHeader **statePtr) {
 }
 
 void uncompressState(int rom, StateHeader *sh, u8 *dest) {
-	ECL_usize result = ECL_NanoLZ_Decompress(ECL_NANOLZ_SCHEME1, sh->data, sh->dataSize, dest, 0x10000);
+	ECL_usize result = ECL_NanoLZ_Decompress(ECL_NANOLZ_SCHEME1, sh->data, sh->dataSize, dest, BUFFER2_SIZE);
 	if (result == 0) {
 		unpackState(dest);
 		frameTotal = sh->frameCount; // Restore global frame counter
@@ -362,7 +365,7 @@ void loadStateMenu() {
 
 int quickSave() {
 	if (usingFlashCart()) {
-		infoOutput("Saving State.");
+		infoOutputForce("Saving State.");
 
 		int i = packState(BUFFER1);
 		compressState(i, STATE_SAVE, BUFFER1);
@@ -382,7 +385,7 @@ int quickLoad() {
 		StateHeader *sh;
 		int i = findState(checksum(romSpacePtr), STATE_SAVE, &sh);
 		if (i >= 0) {
-			infoOutput("Loading State.");
+			infoOutputForce("Loading State.");
 			uncompressState(romNum, sh, BUFFER2);
 			return 1;
 		}
@@ -427,7 +430,7 @@ int checkForEmuSram() {
 // This is to ensure that we have all info for this rom and can save it even after this rom is removed
 int saveEmuSram(const u8 *src, int size) {
 	if (usingFlashCart()) {
-		infoOutput("Saving NVRAM.");
+		infoOutputForce("Saving NVRAM.");
 		compressState(size, SRAM_SAVE, src);
 		int i = checkForEmuSram();	// See if packed SRAM exists
 		if (i < 0) i = 65536;		// Make new save if one doesn't exist
@@ -445,7 +448,7 @@ int loadEmuSram(u8 *dst, int size) {
 		int i = findState(checksum(romSpacePtr), SRAM_SAVE, &sh); // See if packed SRAM exists
 
 		if (i >= 0) { // Packed SRAM exists: unpack into EMU_SRAM
-			infoOutput("Loading NVRAM.");
+			infoOutputForce("Loading NVRAM.");
 			ECL_usize result = ECL_NanoLZ_Decompress(ECL_NANOLZ_SCHEME1, sh->data, sh->dataSize, dst, size);
 			if (result == size) {
 				return 1;

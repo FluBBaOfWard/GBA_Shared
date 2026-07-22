@@ -102,6 +102,7 @@ void int2HexStr(char *dest, int hexValue);
 void short2HexStr(char *dest, short hexValue);
 void char2HexStr(char *dest, char hexValue);
 void infoOutput(const char *str);
+void infoOutputForce(const char *str);
 void updateInfoLog(void);
 void outputLogToScreen(void);
 void debugOutput(const char *str);

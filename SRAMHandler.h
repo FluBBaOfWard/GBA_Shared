@@ -10,8 +10,8 @@ extern "C" {
 #define CONFIG_SAVE 0
 #define STATE_SAVE 1
 #define SRAM_SAVE 2
-#define EEPROM_SAVE 3
-#define FLASH_SAVE 4
+#define EEPROM_SAVE 4
+#define FLASH_SAVE 8
 
 #define FILENAME_MAX_LENGTH (32)
 

@@ -187,7 +187,7 @@ const RomHeader *browseForFile(void) {
 			if (oldPos != selected) {
 				oldPos = selected;
 				romNum = selected;
-				drawFileList(selected, romCount);
+				drawItemList(selected, romCount, 1, (SCREEN_HEIGHT / 8 - 1), romNameFromPos);
 				outputLogToScreen();
 			}
 			if (pressed & KEY_B) {

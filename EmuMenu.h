@@ -21,6 +21,8 @@ extern "C" {
 
 typedef void (*fptr)(void);
 typedef const char *const (*tfptr)(void);
+// Used by file menus to get the text for a certain row.
+typedef const char *const (*mfptr)(int row);
 
 // MenuItem
 typedef struct {
@@ -82,7 +84,7 @@ int getInput(void);
 int getMenuInput(int menuItems);
 int getMenuPos(int keyHit, int sel, int menuItems);
 void redrawUI(void);
-int drawFileList(int sel, int itemCount);
+int drawItemList(int sel, int itemCount, int startRow, int rowCount, mfptr nameFunc);
 void drawTextXY(const char *str, int col, int row);
 void drawText(const char *str, int row);
 void drawBText(const char *str, int row, int shadow);

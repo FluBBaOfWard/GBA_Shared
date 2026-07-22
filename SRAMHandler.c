@@ -148,11 +148,50 @@ void getStateTimeAndSize(char *s, int time, u32 size, u32 totalsize) {
 	twoDigits(totalsize/1024, s);
 }
 
+// Also updates totalStateSize
+int countSaves(StateHeader *sh, int type) {
+	int total = 8; // Header+null terminator
+	int saveCount = 0;
+	while (sh->size) {
+		if (sh->type == type) {
+			saveCount++;
+		}
+		total += sh->size;
+		sh = (StateHeader *)((u8 *)sh+sh->size);
+	}
+	totalStateSize = total;
+	return saveCount;
+}
+
+// Gets the StateHeader of type at index, retuns NULL if not found.
+StateHeader *getSaveHeader(StateHeader *sh, int type, int index) {
+	int saveCount = 0;
+	while (sh->size) {
+		if (sh->type == type) {
+			if (index == saveCount) {
+				return sh;
+			}
+			saveCount++;
+		}
+		sh = (StateHeader *)((u8 *)sh+sh->size);
+	}
+	return NULL;
+}
+
+const char *getSRamName(int index) {
+	return getSaveHeader((StateHeader *)(BUFFER1+4), SRAM_SAVE, index)->title;
+}
+
+const char *getStateName(int index) {
+	return getSaveHeader((StateHeader *)(BUFFER1+4), STATE_SAVE, index)->title;
+}
+
 #define LOAD_MENU 0
 #define SAVE_MENU 1
 #define NVRAM_MENU 2
+
 #define FIRSTLINE 2
-#define LASTLINE ((SCREEN_HEIGHT/8)-4)
+#define LASTLINE ((SCREEN_HEIGHT/8)-5)
 
 // BUFFER1 holds copy of SRAM
 // Draw save/loadState menu and update global totalStateSize
@@ -160,55 +199,40 @@ void getStateTimeAndSize(char *s, int time, u32 size, u32 totalsize) {
 // Update *states on exit
 StateHeader *drawStates(int menuType, int *menuItems) {
 	int sel = selected;
-	int size;
 	char s[30];
-	StateHeader *selectedState = NULL;
-	int time = 0;
-	int selectedStateSize = 0;
 	StateHeader *sh = (StateHeader *)(BUFFER1+4);
 
 	int type = (menuType == NVRAM_MENU) ? SRAM_SAVE : STATE_SAVE;
 
-	int startLine = FIRSTLINE;
-	int stateCount = 0;
-	int total = 8; // Header+null terminator
-	while (sh->size) {
-		size = sh->size;
-		if (sh->type == type) {
-			if (startLine+stateCount >= FIRSTLINE && startLine+stateCount <= LASTLINE) {
-				drawItem(sh->title, stateCount+FIRSTLINE, sel == stateCount);
-			}
-			if (sel == stateCount) { // Keep info for selected state
-				time = sh->frameCount;
-				selectedStateSize = size;
-				selectedState = sh;
-			}
-			stateCount++;
-		}
-		total += size;
-		sh = (StateHeader *)((u8 *)sh+size);
+	int saveCount = countSaves(sh, type);
+	sh = getSaveHeader(sh, type, sel);
+
+	if (menuType == NVRAM_MENU) {
+		drawItemList(sel, saveCount, FIRSTLINE, LASTLINE, getSRamName);
+	}
+	else {
+		drawItemList(sel, saveCount, FIRSTLINE, LASTLINE, getStateName);
 	}
 
-	if (sel != stateCount) { // Not <NEW>
-		getStateTimeAndSize(s, time, selectedStateSize, total);
+	if (sel != saveCount) { // Not <NEW>
+		getStateTimeAndSize(s, sh->frameCount, sh->size, totalStateSize);
 		drawText(s, 18);
 	}
-	if (stateCount) {
+	if (saveCount) {
 		drawText("Push SELECT to delete", 19);
 	}
 	if (menuType == SAVE_MENU) {
-		if (startLine+stateCount <= LASTLINE) {
+		if (sel == saveCount) {
 			drawMenuItem("<NEW>");
 		}
-		stateCount++; // Include <NEW> as a menuitem
+		saveCount++; // Include <NEW> as a menuitem
 //		drawText("Save state:", 0);
 	}
 //	else if (menuType == LOAD_MENU) {
 //		drawText("Load state:", 0);
 //	}
-	*menuItems = stateCount;
-	totalStateSize = total;
-	return selectedState;
+	*menuItems = saveCount;
+	return sh;
 }
 
 // Compress src into BUFFER2 (adding header)
@@ -223,7 +247,7 @@ void compressState(u32 size, u16 type, const u8 *src) {
 	sh->type = type;
 	sh->dataSize = compressedSize; // Size of compressed state
 	sh->frameCount = frameTotal;
-	sh->checksum = checksum((u8 *)romSpacePtr); // Checksum
+	sh->checksum = checksum(romSpacePtr); // Checksum
 //	if (isPogoShell) {
 //		strlcpy(sh->title, pogoshell_romname, 32);
 //	}
@@ -343,7 +367,7 @@ int quickSave() {
 		int i = packState(BUFFER1);
 		compressState(i, STATE_SAVE, BUFFER1);
 		StateHeader *sh;
-		i = findState(checksum((u8 *)romSpacePtr), STATE_SAVE, &sh);
+		i = findState(checksum(romSpacePtr), STATE_SAVE, &sh);
 		if (i < 0) i = 65536; // Make new save if one doesn't exist
 		if (updateStates(i, 0, STATE_SAVE)) {
 			return 1;
@@ -356,7 +380,7 @@ int quickSave() {
 int quickLoad() {
 	if (usingFlashCart()) {
 		StateHeader *sh;
-		int i = findState(checksum((u8 *)romSpacePtr), STATE_SAVE, &sh);
+		int i = findState(checksum(romSpacePtr), STATE_SAVE, &sh);
 		if (i >= 0) {
 			infoOutput("Loading State.");
 			uncompressState(romNum, sh, BUFFER2);
@@ -396,7 +420,7 @@ int checkForEmuSram() {
 		return -1;
 	}
 	StateHeader *sh;
-	return findState(checksum((u8 *)romSpacePtr), SRAM_SAVE, &sh);	// See if packed SRAM exists
+	return findState(checksum(romSpacePtr), SRAM_SAVE, &sh);	// See if packed SRAM exists
 }
 
 // Make new saved sram (using EMU_SRAM contents)
@@ -417,9 +441,8 @@ int saveEmuSram(const u8 *src, int size) {
 
 int loadEmuSram(u8 *dst, int size) {
 	if (usingFlashCart()) {
-		u32 chk = checksum(romSpacePtr);
 		StateHeader *sh;
-		int i = findState(chk, SRAM_SAVE, &sh); // See if packed SRAM exists
+		int i = findState(checksum(romSpacePtr), SRAM_SAVE, &sh); // See if packed SRAM exists
 
 		if (i >= 0) { // Packed SRAM exists: unpack into EMU_SRAM
 			infoOutput("Loading NVRAM.");

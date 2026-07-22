@@ -344,24 +344,24 @@ void redrawUI() {
 	outputLogToScreen();
 }
 
-int drawFileList(int sel, int itemCount) {
+int drawItemList(int sel, int itemCount, int startRow, int rowCount, mfptr nameFunc) {
 	int i;
 
-	int firstItem = sel-9;
-	if (sel > (itemCount-11)) {
-		firstItem = itemCount-19;
+	int firstItem = sel-(rowCount/2);
+	if (sel > (itemCount-((rowCount+2)/2))) {
+		firstItem = itemCount-rowCount;
 	}
 	if (firstItem < 0) {
 		firstItem = 0;
 	}
 
-	for (i = 0; i < (SCREEN_HEIGHT / 8 - 1); i++) {
-		const char *buf = romNameFromPos(firstItem + i);
+	for (i = 0; i < rowCount; i++) {
+		const char *buf = nameFunc(firstItem + i);
 		if (*buf == '~') {
 			buf++;
 		}
 		int selectedFile = (i == (sel-firstItem)?1:0);
-		drawItem(buf, i+1, selectedFile);
+		drawItem(buf, startRow+i, selectedFile);
 	}
 	return (sel-firstItem);
 }

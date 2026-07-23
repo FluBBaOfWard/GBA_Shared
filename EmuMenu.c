@@ -244,7 +244,6 @@ bool isMenuOpen() {
 void exitUI() {
 	if (settingsChanged && (emuSettings & AUTOSAVE_SETTINGS)) {
 		saveSettings();
-		settingsChanged = false;
 	}
 	lastMainMenu = selectedMain;
 	if (lastMainMenu < 1) {

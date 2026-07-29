@@ -135,6 +135,9 @@ void ui8(void);
 void ui9(void);
 void ui10(void);
 
+/** Value should be the masked value from emuSettings */
+void setSleepValue(int i);
+
 void autoPauseGameSet(void);
 const char *getAutoPauseGameText(void);
 void autoStateSet(void);

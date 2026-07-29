@@ -14,6 +14,8 @@
 	.equ KEY_R,         (1<<8)  ;@ Right shoulder button.
 	.equ KEY_L,         (1<<9)  ;@ Left shoulder button.
 
+	.equ KEY_JOY_MASK,  (0xF<<4);@ Keypad buttons mask.
+
 	.equ ACT_COIN,      1<<23   ;@ Action to insert coin
 	.equ ACT_POWER,     1<<24   ;@ Action to press power button
 	.equ ACT_SCRL_UP,   1<<25   ;@ Action to scroll unscaled screen up

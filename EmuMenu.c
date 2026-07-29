@@ -675,9 +675,7 @@ const char *getDebugText() {
 	return autoTxt[gDebugSet & 1];
 }
 
-void sleepSet() {
-	int i = (emuSettings+0x100) & AUTOSLEEP_MASK;
-	emuSettings = (emuSettings & ~AUTOSLEEP_MASK) | i;
+void setSleepValue(int i) {
 	if (i == AUTOSLEEP_5MIN) {
 		sleepTime = 60*60*5;		// 5 min
 	}
@@ -690,6 +688,12 @@ void sleepSet() {
 	else if (i == AUTOSLEEP_OFF) {
 		sleepTime = 0x7F000000;		// 360 days...
 	}
+}
+
+void sleepSet() {
+	int i = (emuSettings+(1<<8)) & AUTOSLEEP_MASK;
+	emuSettings = (emuSettings & ~AUTOSLEEP_MASK) | i;
+	setSleepValue(i);
 	settingsChanged = true;
 }
 

@@ -9,8 +9,8 @@
 #include "../Cart.h"
 #include "../FileHandling.h"
 
-const int GBA_SRAM_SIZE = 0x10000;
 const int BUFFER2_SIZE = 0x10000;
+const int GBA_SRAM_SIZE = sizeof(SCRATCH_BUFF) - BUFFER2_SIZE;
 
 u8 * const BUFFER1 = SCRATCH_BUFF;
 u8 * const BUFFER2 = &SCRATCH_BUFF[GBA_SRAM_SIZE];

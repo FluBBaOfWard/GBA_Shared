@@ -10,10 +10,11 @@
 #include "../FileHandling.h"
 
 const int BUFFER2_SIZE = 0x10000;
-const int GBA_SRAM_SIZE = sizeof(SCRATCH_BUFF) - BUFFER2_SIZE;
+const int BUFFER1_SIZE = sizeof(SCRATCH_BUFF) - BUFFER2_SIZE;
+int GBA_SRAM_SIZE = BUFFER1_SIZE;
 
 u8 * const BUFFER1 = SCRATCH_BUFF;
-u8 * const BUFFER2 = &SCRATCH_BUFF[GBA_SRAM_SIZE];
+u8 * const BUFFER2 = &SCRATCH_BUFF[BUFFER1_SIZE];
 
 int totalStateSize;			// How much SRAM is used
 
@@ -39,6 +40,12 @@ void getSram() {		// Copy GBA SRAM to BUFFER1
 		if (*p != STATEID) {	// Valid savestate data?
 			*p = STATEID;		// Nope. Initialize
 			*(p+1) = 0;
+		}
+		else if (GBA_SRAM_SIZE != 0x8000) {
+			p += 0x2000;
+			if (*p == STATEID) {	// Sram mirrors first 32kB?
+				GBA_SRAM_SIZE = 0x8000;
+			}
 		}
 	}
 }
@@ -149,7 +156,7 @@ void getStateTimeAndSize(char *s, int time, u32 size, u32 totalsize) {
 }
 
 // Also updates totalStateSize
-int countSaves(StateHeader *sh, int type) {
+int countSaves(const StateHeader *sh, int type) {
 	int total = 8; // Header+null terminator
 	int saveCount = 0;
 	while (sh->size) {
@@ -164,7 +171,7 @@ int countSaves(StateHeader *sh, int type) {
 }
 
 // Gets the StateHeader of type at index, returns NULL if not found.
-StateHeader *getSaveHeader(StateHeader *sh, int type, int index) {
+const StateHeader *getSaveHeader(const StateHeader *sh, int type, int index) {
 	int saveCount = 0;
 	while (sh->size) {
 		if (sh->type == type) {
@@ -197,10 +204,10 @@ const char *getStateName(int index) {
 // Draw save/loadState menu and update global totalStateSize
 // Returns a pointer to current selected state
 // Update *states on exit
-StateHeader *drawStates(int menuType, int *menuItems) {
+const StateHeader *drawStates(int menuType, int *menuItems) {
 	int sel = selected;
 	char s[30];
-	StateHeader *sh = (StateHeader *)(BUFFER1+4);
+	const StateHeader *sh = (StateHeader *)(BUFFER1+4);
 
 	int type = (menuType == NVRAM_MENU) ? SRAM_SAVE : STATE_SAVE;
 
@@ -273,9 +280,9 @@ void compressGameState(StateHeader *sh, const u8 *src, u32 size, u16 type) {
 // Locate last save by checksum
 // Returns save index (-1 if not found) and updates statePtr
 // Updates totalStateSize (so quickSave can use updateStates)
-int findState(u32 checksum, int type, StateHeader **statePtr) {
+int findState(u32 checksum, int type, const StateHeader **statePtr) {
 	getSram();
-	StateHeader *sh = (StateHeader *)(BUFFER1+4);
+	const StateHeader *sh = (StateHeader *)(BUFFER1+4);
 
 	int state = -1;
 	int foundstate = -1;
@@ -297,7 +304,7 @@ int findState(u32 checksum, int type, StateHeader **statePtr) {
 	return foundstate;
 }
 
-int uncompressState(StateHeader *sh, u8 *dest) {
+int uncompressState(const StateHeader *sh, u8 *dest) {
 	int stateSize = getStateSize();
 	ECL_usize result = ECL_NanoLZ_Decompress(ECL_NANOLZ_SCHEME1, sh->data, sh->dataSize, dest, stateSize);
 	if (result == stateSize) {
@@ -343,7 +350,7 @@ void loadStateMenu() {
 	getSram();
 
 //	selected = 0;
-	StateHeader *sh = drawStates(LOAD_MENU, &menuItems);
+	const StateHeader *sh = drawStates(LOAD_MENU, &menuItems);
 	if (!menuItems) {
 		return; // Nothing to load!
 	}
@@ -384,7 +391,7 @@ int quickSave() {
 
 		int i = packState(BUFFER1);
 		compressGameState((StateHeader *)BUFFER2, BUFFER1, i, STATE_SAVE);
-		StateHeader *sh;
+		const StateHeader *sh;
 		i = findState(checksum(romSpacePtr), STATE_SAVE, &sh);
 		if (i < 0) i = 65536; // Make new save if one doesn't exist
 		if (updateStates(i, 0, STATE_SAVE)) {
@@ -397,7 +404,7 @@ int quickSave() {
 
 int quickLoad() {
 	if (usingFlashCart()) {
-		StateHeader *sh;
+		const StateHeader *sh;
 		int i = findState(checksum(romSpacePtr), STATE_SAVE, &sh);
 		if (i >= 0) {
 			infoOutputForce("Loading State.");
@@ -434,7 +441,7 @@ void manageNVRAM() {
 // Check if there allready is a SRAM save for the current game.
 int checkForEmuSram() {
 	if (usingFlashCart()) {
-		StateHeader *sh;
+		const StateHeader *sh;
 		return findState(checksum(romSpacePtr), SRAM_SAVE, &sh); // See if packed SRAM exists
 	}
 	return -1;
@@ -458,7 +465,7 @@ int saveEmuSram(const u8 *src, int size) {
 
 int loadEmuSram(u8 *dst, int size) {
 	if (usingFlashCart()) {
-		StateHeader *sh;
+		const StateHeader *sh;
 		int i = findState(checksum(romSpacePtr), SRAM_SAVE, &sh); // See if packed SRAM exists
 
 		if (i >= 0) { // Packed SRAM exists: unpack into EMU_SRAM
@@ -475,7 +482,7 @@ int loadEmuSram(u8 *dst, int size) {
 int writeFile(const u8 *src, int size, int checksum, const char *name) {
 	if (usingFlashCart()) {
 		compressFileState((StateHeader *)BUFFER2, src, size, CONFIG_SAVE, checksum, name);
-		StateHeader *sh;
+		const StateHeader *sh;
 		int i = findState(checksum, CONFIG_SAVE, &sh);
 		if (i < 0) i = 65536; // Make new file if one doesn't exist
 		return updateStates(i, 0, CONFIG_SAVE);
@@ -485,7 +492,7 @@ int writeFile(const u8 *src, int size, int checksum, const char *name) {
 
 int readFile(u8 *dst, int size, int checksum) {
 	if (usingFlashCart()) {
-		StateHeader *sh;
+		const StateHeader *sh;
 		int i = findState(checksum, CONFIG_SAVE, &sh);
 		if (i >= 0) {
 			ECL_usize result = ECL_NanoLZ_Decompress(ECL_NANOLZ_SCHEME1, sh->data, sh->dataSize, dst, size);
